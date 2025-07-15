@@ -23,9 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${kanit.className} `}
-      >
+      <body className={`${kanit.className} bg-gray-100 min-h-screen flex flex-col`}>
         <h1>Header</h1>
         <hr />
         {children}

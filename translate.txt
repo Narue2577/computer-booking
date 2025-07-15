@@ -71,3 +71,34 @@ h3 {
 .logo img {
   display:inline-block;
 } 
+
+In Next.js with Tailwind CSS, you can add more styles to your `<body>` element in several ways:
+
+**Method 1: Add Tailwind classes directly**
+```jsx
+<body className={`${kanit.className} bg-gray-100 min-h-screen flex flex-col`}>
+```
+
+**Method 2: Use template literals with multiple classes**
+```jsx
+<body className={`${kanit.className} bg-slate-50 text-gray-900 antialiased`}>
+```
+
+**Method 3: Use the `clsx` or `cn` utility (if you have it)**
+```jsx
+<body className={cn(kanit.className, "bg-white dark:bg-gray-900 transition-colors")}>
+```
+
+**Method 4: Create a variable first**
+```jsx
+const bodyClasses = `${kanit.className} bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen`;
+
+<body className={bodyClasses}>
+```
+
+**Method 5: Array join approach**
+```jsx
+<body className={[kanit.className, "bg-gray-50", "text-gray-900", "antialiased"].join(" ")}>
+```
+
+The most common and clean approach is **Method 1** - just add your Tailwind classes directly in the template literal after the font class.
