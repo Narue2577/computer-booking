@@ -1,3 +1,4 @@
+//when you open starting page (localhost:3001)
 import AppWelcome from "./components/AppWelcome";
 
 export default function Home() {

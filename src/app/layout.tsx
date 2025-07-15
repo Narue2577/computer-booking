@@ -1,11 +1,9 @@
+//when you open starting page (localhost:3001)
 import type { Metadata } from "next";
-import { Geist, Kanit } from "next/font/google";
+import {  Kanit } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+
 
 const kanit = Kanit({
   subsets: ["thai"],
@@ -26,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${kanit.className} `}
+        className={`${kanit.className} `}
       >
         <h1>Header</h1>
         <hr />
