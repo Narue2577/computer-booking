@@ -28,6 +28,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${kanit.className} `}
       >
+        <h1>Header</h1>
+        <hr />
         {children}
       </body>
     </html>
