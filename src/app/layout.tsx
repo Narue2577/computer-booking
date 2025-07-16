@@ -1,15 +1,9 @@
 //when you open starting page (localhost:3001)
 import type { Metadata } from "next";
-import {  Kanit } from "next/font/google";
 import "./globals.css";
 
 
 
-const kanit = Kanit({
-  subsets: ["thai"],
-  weight: ['100','200', '300', '400', '500', '600'],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: "Computer Seat Booking System",
@@ -23,8 +17,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${kanit.className} bg-gray-100 min-h-screen flex flex-col`}>
-        <h1>Header</h1>
+      <body className={` bg-gray-100 min-h-screen flex flex-col`}>
+        {/* <h1 className="justify-center">Computer Seat Booking System </h1>8 */}
         <hr />
         {children}
       </body>
