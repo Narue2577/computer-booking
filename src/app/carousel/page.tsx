@@ -251,9 +251,9 @@ const AirplaneSeatBooking = () => {
               <h2 className="text-xl font-semibold text-gray-700">
                 Select Seats - {selectedAirplane.name}
               </h2>
-              <div className="text-sm text-gray-600">
+              {/*<div className="text-sm text-gray-600">
                 Selected: {selectedSeats.length} / {passengerCount}
-              </div>
+              </div> */}
             </div>
 
             {/* Legend */}
