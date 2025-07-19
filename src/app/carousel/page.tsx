@@ -80,7 +80,7 @@ const AirplaneSeatBooking = () => {
             id: seatId,
             row: currentRow,
             letter: letter,
-            occupied: bookings[airplane.id]?.includes(seatId) || Math.random() < 0.3, // 30% random occupancy
+            occupied: bookings[airplane.id]?.includes(seatId),// || Math.random() < 0.3, // 30% random occupancy
             selected: selectedSeats.includes(seatId)
           });
         });
@@ -145,8 +145,6 @@ const AirplaneSeatBooking = () => {
       seatClasses += " bg-red-200 border-red-400 text-red-800 cursor-not-allowed";
     } else if (seat.selected) {
       seatClasses += " bg-blue-500 border-blue-600 text-white transform scale-110";
-    } else if (seat.premium) {
-      seatClasses += " bg-yellow-100 border-yellow-400 text-yellow-800 hover:bg-yellow-200";
     } else {
       seatClasses += " bg-green-100 border-green-400 text-green-800 hover:bg-green-200";
     }
@@ -201,7 +199,7 @@ const AirplaneSeatBooking = () => {
         {/* Airplane Selection */}
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-semibold text-gray-700">Select Room</h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
             {airplanes.map((airplane) => (
               <div
                 key={airplane.id}
@@ -213,21 +211,21 @@ const AirplaneSeatBooking = () => {
                 onClick={() => setSelectedAirplane(airplane)}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-bold text-gray-800">{airplane.name}</h3>
+                  <h3 className="text-lg font-bold text-gray-800 text-center justify-center">{airplane.name}</h3>
                   {/*<span className="text-lg font-bold text-blue-600">${airplane.price}</span> */}
                 </div>
-                <p className="mb-1 text-sm text-gray-600">Capacity: {airplane.capacity} passengers</p>
+                <p className="mb-1 text-sm text-gray-600 text-center justify-center">Capacity: {airplane.capacity} </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Passenger Count Selection */}
-        {/*{selectedAirplane && (
+        {selectedAirplane && (
           <div className="mb-6">
-            <h2 className="mb-4 text-xl font-semibold text-gray-700">Number of Passengers</h2>
+            <h2 className="mb-4 text-xl font-semibold text-gray-700">Number of Reservations</h2>
             <div className="flex items-center gap-4">
-              <label className="text-sm font-medium text-gray-600">Passengers:</label>
+              <label className="text-sm font-medium text-gray-600">Seats:</label>
               <select
                 value={passengerCount}
                 onChange={(e) => {
@@ -242,7 +240,7 @@ const AirplaneSeatBooking = () => {
               </select>
             </div>
           </div>
-        )} */}
+        )} 
 
         {/* Seat Map */}
         {selectedAirplane && (
@@ -287,13 +285,13 @@ const AirplaneSeatBooking = () => {
             <h3 className="mb-2 text-lg font-semibold text-blue-800">Booking Summary</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p><strong>Aircraft:</strong> {selectedAirplane.name}</p>
+                <p><strong>Room:</strong> {selectedAirplane.name}</p>
                 <p><strong>Selected Seats:</strong> {selectedSeats.join(', ')}</p>
               </div>
               <div>
-                <p><strong>Price per seat:</strong> ${selectedAirplane.price}</p>
+               {/*} <p><strong>Price per seat:</strong> ${selectedAirplane.price}</p>
                 <p><strong>Total:</strong> ${selectedAirplane.price * selectedSeats.length}</p>
-              </div>
+              */}</div>
             </div>
             <button
               onClick={handleBooking}
