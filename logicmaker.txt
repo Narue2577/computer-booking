@@ -1,0 +1,44 @@
+selectedseats
+
+<div
+                key={airplane.id}
+                className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
+                  selectedAirplane?.id === airplane.id
+                    ? ' bg-red-200 border-red-400 text-red-800 cursor-not-allowed'
+                    : ' bg-green-100 border-green-400 text-green-800 hover:bg-green-200'
+                }`}
+                onClick={() => setSelectedAirplane(airplane)}
+              >
+
+const generateSeatMap = (airplane) => {
+    const seatMap = [];
+    let currentRow = 1;
+
+    airplane.layout.forEach((section) => {
+      for (let row = 0; row < section.rows; row++) {
+        const rowSeats = [];
+        const seatLetters = section.seatWidth.replace(/\s+/g, '').split('');
+        
+        seatLetters.forEach((letter) => {
+          const seatId = `${currentRow}${letter}`;
+          rowSeats.push({
+            id: seatId,
+            row: currentRow,
+            letter: letter,
+            occupied: bookings[airplane.id]?.includes(seatId),// || Math.random() < 0.3, // 30% random occupancy
+            selected: selectedSeats.includes(seatId)
+          });
+        });
+        
+        seatMap.push({
+          rowNumber: currentRow,
+          seats: rowSeats,
+          section: section.section,
+          seatWidth: section.seatWidth
+        });
+        currentRow++;
+      }
+    });
+
+    return seatMap;
+  };

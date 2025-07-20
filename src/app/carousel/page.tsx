@@ -6,6 +6,7 @@ import { Plane, User, Check, X } from 'lucide-react';
 const AirplaneSeatBooking = () => {
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [selectedUnuseds, setSelectedUnuseds] = useState([]);
   const [passengerCount, setPassengerCount] = useState(1);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookings, setBookings] = useState({});
@@ -18,6 +19,7 @@ const AirplaneSeatBooking = () => {
       capacity: 54,
       rows: 7,
       seatsPerRow: 8,
+      unused: ['4E','5E'],
       layout: [
         { section: 'Room 601', rows: 7, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -28,6 +30,7 @@ const AirplaneSeatBooking = () => {
       capacity: 54,
       rows: 8,
       seatsPerRow: 8,
+      unused: ['1A','1B','1G','1H','2A','5A','5H','6A','6H'],
       layout: [
         { section: 'Room 602', rows: 8, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -38,6 +41,7 @@ const AirplaneSeatBooking = () => {
       capacity: 54,
       rows: 7,
       seatsPerRow: 8,
+      unused: ['4E','5E'],
       layout: [
         { section: 'Room 701', rows: 7, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -48,6 +52,7 @@ const AirplaneSeatBooking = () => {
       capacity: 55,
       rows: 8,
       seatsPerRow: 8,
+      unused: ['1B','1C','1D','1E','1F','1G','1H','5E','6E'],
       layout: [
         { section: 'Room 801', rows: 8, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -58,6 +63,7 @@ const AirplaneSeatBooking = () => {
       capacity: 56,
       rows: 8,
       seatsPerRow: 8,
+      unused: ['1A','1B','1G','1H','5A','5H', '6A','6H'],
       layout: [
         { section: 'Room 802', rows: 8, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -66,54 +72,54 @@ const AirplaneSeatBooking = () => {
 
   // Generate seat map for an airplane
   const generateSeatMap = (airplane) => {
-    const seatMap = [];
-    let currentRow = 1;
+  const seatMap = [];
+  let currentRow = 1;
 
-    airplane.layout.forEach((section) => {
-      for (let row = 0; row < section.rows; row++) {
-        const rowSeats = [];
-        const seatLetters = section.seatWidth.replace(/\s+/g, '').split('');
-        
-        seatLetters.forEach((letter) => {
-          const seatId = `${currentRow}${letter}`;
-          rowSeats.push({
-            id: seatId,
-            row: currentRow,
-            letter: letter,
-            occupied: bookings[airplane.id]?.includes(seatId),// || Math.random() < 0.3, // 30% random occupancy
-            selected: selectedSeats.includes(seatId)
-          });
+  airplane.layout.forEach((section) => {
+    for (let row = 0; row < section.rows; row++) {
+      const rowSeats = [];
+      const seatLetters = section.seatWidth.replace(/\s+/g, '').split('');
+      
+      seatLetters.forEach((letter) => {
+        const seatId = `${currentRow}${letter}`;
+        rowSeats.push({
+          id: seatId,
+          row: currentRow,
+          letter: letter,
+          occupied: bookings[airplane.id]?.includes(seatId),
+          unused: airplane.unused.includes(seatId), // Add unused status
+          selected: selectedSeats.includes(seatId), 
         });
-        
-        seatMap.push({
-          rowNumber: currentRow,
-          seats: rowSeats,
-          section: section.section,
-          seatWidth: section.seatWidth
-        });
-        currentRow++;
-      }
-    });
+      });
+      
+      seatMap.push({
+        rowNumber: currentRow,
+        seats: rowSeats,
+        section: section.section,
+        seatWidth: section.seatWidth
+      });
+      currentRow++;
+    }
+  });
 
-    return seatMap;
-  };
+  return seatMap;
+};
 
   // Handle seat selection
-  const handleSeatClick = (seatId, occupied) => {
-    if (occupied) return;
+  const handleSeatClick = (seatId, occupied, unused) => {
+  if (occupied || unused) return; // Prevent selection of occupied or unused seats
 
-    if (selectedSeats.includes(seatId)) {
-      setSelectedSeats(selectedSeats.filter(id => id !== seatId));
+  if (selectedSeats.includes(seatId)) {
+    setSelectedSeats(selectedSeats.filter(id => id !== seatId));
+  } else {
+    if (selectedSeats.length < passengerCount) {
+      setSelectedSeats([...selectedSeats, seatId]);
     } else {
-      if (selectedSeats.length < passengerCount) {
-        setSelectedSeats([...selectedSeats, seatId]);
-      } else {
-        // Replace first selected seat if limit reached
-        setSelectedSeats([...selectedSeats.slice(1), seatId]);
-      }
+      // Replace first selected seat if limit reached
+      setSelectedSeats([...selectedSeats.slice(1), seatId]);
     }
-  };
-
+  }
+};
   // Handle booking confirmation
   const handleBooking = () => {
     if (selectedSeats.length === 0) return;
@@ -137,29 +143,31 @@ const AirplaneSeatBooking = () => {
 
   // Render seat
   const renderSeat = (seat) => {
-    const baseClasses = "w-8 h-8 rounded-t-lg border-2 flex items-center justify-center text-xs font-medium cursor-pointer transition-all duration-200";
-    
-    let seatClasses = baseClasses;
-    
-    if (seat.occupied) {
-      seatClasses += " bg-red-200 border-red-400 text-red-800 cursor-not-allowed";
-    } else if (seat.selected) {
-      seatClasses += " bg-blue-500 border-blue-600 text-white transform scale-110";
-    } else {
-      seatClasses += " bg-green-100 border-green-400 text-green-800 hover:bg-green-200";
-    }
+  const baseClasses = "w-8 h-8 rounded-t-lg border-2 flex items-center justify-center text-xs font-medium cursor-pointer transition-all duration-200";
+  
+  let seatClasses = baseClasses;
+  
+  if (seat.unused) { // Check for unused status first
+    seatClasses += " bg-black border-gray-800 text-white cursor-not-allowed";
+  } else if (seat.occupied) {
+    seatClasses += " bg-red-200 border-red-400 text-red-800 cursor-not-allowed";
+  } else if (seat.selected) {
+    seatClasses += " bg-blue-500 border-blue-600 text-white transform scale-110";
+  } else {
+    seatClasses += " bg-green-100 border-green-400 text-green-800 hover:bg-green-200";
+  }
 
-    return (
-      <div
-        key={seat.id}
-        className={seatClasses}
-        onClick={() => handleSeatClick(seat.id, seat.occupied)}
-        title={`Seat ${seat.id} - ${seat.section} ${seat.occupied ? '(Occupied)' : '(Available)'}`}
-      >
-        {seat.occupied ? <X className="w-3 h-3" /> : seat.selected ? <Check className="w-3 h-3" /> : seat.letter}
-      </div>
-    );
-  };
+  return (
+    <div
+      key={seat.id}
+      className={seatClasses}
+      onClick={() => handleSeatClick(seat.id, seat.occupied, seat.unused)}
+      title={`Seat ${seat.id} - ${seat.section} ${seat.unused ? '(Not Available)' : seat.occupied ? '(Occupied)' : '(Available)'}`}
+    >
+      {seat.unused ? 'X' : seat.occupied ? <X className="w-3 h-3 text-red-800" /> : seat.selected ? <Check className="w-3 h-3 text-white" /> : seat.letter}
+    </div>
+  );
+};
 
   // Render seat row
   const renderSeatRow = (row) => {
@@ -255,21 +263,25 @@ const AirplaneSeatBooking = () => {
             </div>
 
             {/* Legend */}
-            <div className="flex justify-center gap-6 mb-6 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-100 border-2 border-green-400 rounded-t-lg"></div>
-                <span>Available</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 border-2 border-blue-600 rounded-t-lg"></div>
-                <span>Selected</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-200 border-2 border-red-400 rounded-t-lg"></div>
-                <span>Occupied</span>
-              </div>
-            </div>
-
+            {/* Legend */}
+<div className="flex justify-center gap-6 mb-6 text-sm">
+  <div className="flex items-center gap-2">
+    <div className="w-4 h-4 bg-green-100 border-2 border-green-400 rounded-t-lg"></div>
+    <span>Available</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <div className="w-4 h-4 bg-blue-500 border-2 border-blue-600 rounded-t-lg"></div>
+    <span>Selected</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <div className="w-4 h-4 bg-red-200 border-2 border-red-400 rounded-t-lg"></div>
+    <span>Occupied</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <div className="w-4 h-4 bg-black border-2 border-gray-800 rounded-t-lg"></div>
+    <span>Not Available</span>
+  </div>
+</div>
             {/* Seat Map */}
             <div className="p-6 overflow-y-auto bg-gray-100 rounded-lg max-h-96">
               <div className="flex flex-col items-center">
