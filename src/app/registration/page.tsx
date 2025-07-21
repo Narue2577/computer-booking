@@ -2,6 +2,36 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function Registration(){
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        
+        const formData = new FormData(event.currentTarget);
+        const data = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Registration successful!');
+                // Redirect to login page
+                window.location.href = '/login';
+            } else {
+                alert(result.error);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Registration failed. Please try again.');
+        }
+    };
     return(
         <>
            <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -15,7 +45,7 @@ export default function Registration(){
                                   />
                       </div>
             <h2 className="mb-6 text-2xl font-semibold text-center">Registration</h2>
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                      <div>
                         <label className="block mb-2 text-sm font-medium text-gray-600">
                                             Full Name

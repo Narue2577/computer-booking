@@ -137,13 +137,13 @@ const AirplaneSeatBooking = () => {
   };
 
   // Reset selections when airplane changes
-  useEffect(() => {
-    setSelectedSeats([]);
-  }, [selectedAirplane]);
+  //useEffect(() => {
+  //  setSelectedSeats([]);
+  //}, [selectedAirplane]);
 
   // Render seat
   const renderSeat = (seat) => {
-  const baseClasses = "w-8 h-8 rounded-t-lg border-2 flex items-center justify-center text-xs font-medium cursor-pointer transition-all duration-200";
+  const baseClasses = "w-8 h-8 border-2 flex items-center justify-center text-xs font-medium cursor-pointer transition-all duration-200";
   
   let seatClasses = baseClasses;
   
@@ -219,10 +219,11 @@ const AirplaneSeatBooking = () => {
                 onClick={() => setSelectedAirplane(airplane)}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-bold text-gray-800 text-center justify-center">{airplane.name}</h3>
+                  <h3 className="justify-center text-lg font-bold text-center text-gray-800">{airplane.name}</h3>
                   {/*<span className="text-lg font-bold text-blue-600">${airplane.price}</span> */}
                 </div>
-                <p className="mb-1 text-sm text-gray-600 text-center justify-center">Capacity: {airplane.capacity} </p>
+                <p className="justify-center mb-1 text-sm text-center text-gray-600">Capacity: {airplane.capacity} </p>
+                <p className="justify-center mb-1 text-sm text-center text-gray-600">Occupied:  </p>
               </div>
             ))}
           </div>
@@ -266,19 +267,19 @@ const AirplaneSeatBooking = () => {
             {/* Legend */}
 <div className="flex justify-center gap-6 mb-6 text-sm">
   <div className="flex items-center gap-2">
-    <div className="w-4 h-4 bg-green-100 border-2 border-green-400 rounded-t-lg"></div>
+    <div className="w-4 h-4 bg-green-100 border-2 border-green-400 "></div>
     <span>Available</span>
   </div>
   <div className="flex items-center gap-2">
-    <div className="w-4 h-4 bg-blue-500 border-2 border-blue-600 rounded-t-lg"></div>
+    <div className="w-4 h-4 bg-blue-500 border-2 border-blue-600 "></div>
     <span>Selected</span>
   </div>
   <div className="flex items-center gap-2">
-    <div className="w-4 h-4 bg-red-200 border-2 border-red-400 rounded-t-lg"></div>
+    <div className="w-4 h-4 bg-red-200 border-2 border-red-400 "></div>
     <span>Occupied</span>
   </div>
   <div className="flex items-center gap-2">
-    <div className="w-4 h-4 bg-black border-2 border-gray-800 rounded-t-lg"></div>
+    <div className="w-4 h-4 bg-black border-2 border-gray-800 "></div>
     <span>Not Available</span>
   </div>
 </div>
@@ -318,8 +319,41 @@ const AirplaneSeatBooking = () => {
             </button>
           </div>
         )}
+
+        {/* Reservation Table */}
+    <table className="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
+        <thead className="text-xs text-gray-700 uppercase dark:text-gray-400">
+            <tr>
+                
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Student ID</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">First</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Last</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Room</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Seat</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Start Date</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Expired Date</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Submit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr className="border-b border-gray-200 dark:border-gray-700">
+                </tr>
+            <tr className="border-b border-gray-200 dark:border-gray-700">
+                
+            </tr>
+            <tr className="border-b border-gray-200 dark:border-gray-700">
+                
+            </tr>
+            <tr>
+            </tr>
+        </tbody>
+    </table>
+
       </div>
     </div>
+
+    
   );
 };
 
