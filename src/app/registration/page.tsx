@@ -1,9 +1,11 @@
+'use client'
+
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Registration(){
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (event: { preventDefault: () => void; currentTarget: HTMLFormElement | undefined; }) => {
         event.preventDefault();
         
         const formData = new FormData(event.currentTarget);
