@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-//import { FormEvent } from 'react'
+import { useEffect} from 'react'
 //import { useRouter } from 'next/navigation'
  
 export default function Login() {
@@ -28,7 +28,20 @@ export default function Login() {
       // Handle errors
     }
   }*/
- 
+
+ useEffect(() => {
+        const fetchData = async () => {
+          try{
+            const data = await fetch('/api/login')
+            const response = data.json()
+            console.log(response)
+          }catch(error)
+          {
+            console.log(error)
+          }
+        }
+        fetchData()
+    }, [])
   return (
     
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

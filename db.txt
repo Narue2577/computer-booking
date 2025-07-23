@@ -25,3 +25,22 @@ Error handling with proper status codes
 Protection against duplicate email registrations
 Proper database connection pooling
 Clean API responses
+
+/* const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      // Basic redirect
+      {
+        source: '/about',
+        destination: '/',
+        permanent: true,
+      },
+      // Wildcard path matching
+      {
+        source: '/blog/:slug',
+        destination: '/news/:slug',
+        permanent: true,
+      },
+    ]
+  },
+} */

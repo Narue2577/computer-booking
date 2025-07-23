@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Plane, User, Check, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 
 const AirplaneSeatBooking = () => {
   const [selectedAirplane, setSelectedAirplane] = useState(null);

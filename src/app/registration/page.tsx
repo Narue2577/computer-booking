@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Registration(){
 
-    const handleSubmit = async (event: { preventDefault: () => void; currentTarget: HTMLFormElement | undefined; }) => {
+ {/*    const handleSubmit = async (event: { preventDefault: () => void; currentTarget: HTMLFormElement | undefined; }) => {
         event.preventDefault();
         
         const formData = new FormData(event.currentTarget);
@@ -33,7 +33,7 @@ export default function Registration(){
             console.error(error);
             alert('Registration failed. Please try again.');
         }
-    };
+    };*/}
     return(
         <>
            <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -47,7 +47,7 @@ export default function Registration(){
                                   />
                       </div>
             <h2 className="mb-6 text-2xl font-semibold text-center">Registration</h2>
-                <form className="space-y-4" onSubmit={handleSubmit}>
+                <form className="space-y-4" >
                      <div>
                         <label className="block mb-2 text-sm font-medium text-gray-600">
                                             Full Name

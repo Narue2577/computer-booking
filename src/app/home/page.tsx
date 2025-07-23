@@ -3,7 +3,8 @@ import AirplaneSeatBooking from "../carousel/page";
 import Table from "../table/page";
 
 
-export default function Home(){
+
+export default function Home2(){
     return(
         <>
 <div className="w-full min-h-screen m-0 font-sans bg-gray-100">
