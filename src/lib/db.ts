@@ -1,31 +1,28 @@
 // lib/db.ts - Database connection
+
 import mysql from 'mysql2/promise';
 
+// XAMPP configuration using environment variables
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '3306'),
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'swu_registration',
+  password: process.env.DB_PASSWORD || '',  // Empty for XAMPP default
+  database: process.env.DB_NAME || 'swu_registration'
 };
 
 export async function getConnection() {
   return await mysql.createConnection(dbConfig);
 }
 
-// Initialize database table (run this once)
-export async function initializeDatabase() {
-  const connection = await getConnection();
-  
-  const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      email VARCHAR(255) UNIQUE NOT NULL,
-      password VARCHAR(255) NOT NULL,
-      name VARCHAR(255) NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
-  
-  await connection.execute(createTableQuery);
-  await connection.end();
+// Alternative: If you need to handle connection errors
+export async function getConnectionSafe() {
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    console.log('Database connected successfully');
+    return connection;
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    throw error;
+  }
 }
