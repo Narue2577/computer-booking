@@ -33,7 +33,7 @@ export const loginUser = async (_, formData) => {
 
     // Here you would typically set up session/JWT
     // For now, just redirect to dashboard
-    redirect('/dashboard');
+    redirect('/home');
     
   } catch (error) {
     console.error('Login error:', error);
