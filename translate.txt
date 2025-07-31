@@ -383,3 +383,64 @@ test();
 
 # Run test:
 # node test-db.js
+
+// app/layout.tsx
+'use client';
+
+import { useSession } from '@/lib/session';
+import Navbar from '@/components/ui/navbar';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = useSession();
+
+  return (
+    <html>
+      <body>
+        <Navbar username={session?.username} />
+        {children}
+      </body>
+    </html>
+  );
+}
+
+// components/ui/navbar.tsx
+'use client';
+
+import Link from 'next/link';
+
+export default function Navbar({ username }: { username?: string }) {
+  return (
+    <nav className="flex items-center justify-between p-4 bg-gray-800 text-white">
+      <div className="font-bold">Your App</div>
+      <div className="flex items-center gap-4">
+        <span className="text-sm">
+          {username ? `Welcome, ${username}` : 'Guest'}
+        </span>
+        {username ? (
+          <Link href="/logout">
+            <a className="text-blue-400 hover:text-blue-300">
+              Logout
+            </a>
+          </Link>
+        ) : (
+          <>
+            <Link href="/login">
+              <a className="text-blue-400 hover:text-blue-300">
+                Login
+              </a>
+            </Link>
+            <Link href="/register">
+              <a className="text-blue-400 hover:text-blue-300">
+                Register
+              </a>
+            </Link>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+}

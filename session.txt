@@ -1,0 +1,447 @@
+Here's how to display the username in your navbar:
+
+```typescript
+// app/layout.tsx
+'use client';
+
+import { useSession } from '@/lib/session';
+import Navbar from '@/components/ui/navbar';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = useSession();
+
+  return (
+    <html>
+      <body>
+        <Navbar username={session?.username} />
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+```typescript
+// components/ui/navbar.tsx
+'use client';
+
+import Link from 'next/link';
+
+export default function Navbar({ username }: { username?: string }) {
+  return (
+    <nav className="flex items-center justify-between p-4 bg-gray-800 text-white">
+      <div className="font-bold">Your App</div>
+      <div className="flex items-center gap-4">
+        <span className="text-sm">
+          {username ? `Welcome, ${username}` : 'Guest'}
+        </span>
+        {username ? (
+          <Link href="/logout">
+            <a className="text-blue-400 hover:text-blue-300">
+              Logout
+            </a>
+          </Link>
+        ) : (
+          <>
+            <Link href="/login">
+              <a className="text-blue-400 hover:text-blue-300">
+                Login
+              </a>
+            </Link>
+            <Link href="/register">
+              <a className="text-blue-400 hover:text-blue-300">
+                Register
+              </a>
+            </Link>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+}
+```
+
+Here's how the session data flows through your application:
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant NextJS App
+    participant Session Store
+    participant Database
+
+    Browser->>NextJS App: Request page
+    NextJS App->>Session Store: Check session
+    Session Store->>Database: Verify session ID
+    alt Session valid
+        Database-->>Session Store: Return user data
+        Session Store-->>NextJS App: Return username
+        NextJS App->>Browser: Render page with username
+    else Session expired/invalid
+        Database-->>Session Store: Session invalid
+        Session Store-->>NextJS App: No session data
+        NextJS App->>Browser: Render page without username
+    end
+```
+
+Let's break down how the session data flows through your application:
+
+1. **Session Validation Process**:
+          - When a page loads, Next.js checks for a session cookie
+  - The session ID is sent to the Session Store for validation
+  - The Session Store queries the database to verify:
+                    - If the session exists
+    - If it hasn't expired (using the `expires_at` timestamp)
+
+
+
+
+2. **Username Display Logic**:
+          - If the session is valid, the username is passed to the Navbar component
+  - The Navbar shows "Welcome, {username}" when logged in
+  - When not logged in, it shows login/register links
+
+
+3. **Security Features**:
+          - The session cookie is httpOnly, preventing JavaScript access
+  - Sessions automatically expire after 24 hours
+  - The username is only displayed when a valid session exists
+
+
+
+This implementation provides a secure and user-friendly way to display the username in your navbar while maintaining session security.
+
+Here's the fixed version of your session creation code:
+
+```typescript
+// lib/session.ts
+'use server';
+
+import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
+
+export async function createSession(data: {
+  userId: string;
+  username: string;
+  email: string;
+}) {
+  // Generate a short session ID (16 characters)
+  const sessionId = crypto.randomBytes(8).toString('hex');
+  
+  const sessionData = {
+    id: sessionId,
+    userId: data.userId,
+    username: data.username,
+    email: data.email,
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  };
+
+  // Store session in database
+  const [result] = await pool.execute(
+    'INSERT INTO sessions (id, user_id, username, email, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
+    [sessionData.id, sessionData.userId, sessionData.username, sessionData.email, 
+     sessionData.createdAt, sessionData.expiresAt]
+  );
+
+  // Set secure cookie
+  const cookie = await setSessionCookie(sessionData.id);
+  
+  return cookie;
+}
+```
+
+The error occurred because MySQL doesn't support the `INSERT INTO ... SET ?` syntax. Instead, we use the standard `INSERT INTO ... VALUES` syntax with positional parameters (`?`). Each value in the array corresponds to a `?` in the query string.
+
+Make sure your database schema matches:
+
+```sql
+CREATE TABLE sessions (
+  id CHAR(16) PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  username VARCHAR(255),
+  email VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP NOT NULL,
+  INDEX idx_user_id (user_id),
+  INDEX idx_expires_at (expires_at)
+);
+```
+
+This solution:
+
+- Uses standard MySQL syntax
+- Maintains security with parameterized queries
+- Keeps the same session structure
+- Fixes the syntax error while preserving functionality
+
+The error occurs because MySQL's datetime columns expect a specific format. Let's fix the session creation code and explain how expires_at works:
+
+```typescript
+// lib/session.ts
+'use server';
+
+import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
+
+export async function createSession(data: {
+  userId: string;
+  username: string;
+  email: string;
+}) {
+  // Generate a short session ID (16 characters)
+  const sessionId = crypto.randomBytes(8).toString('hex');
+  
+  // Format dates for MySQL compatibility
+  const now = new Date();
+  const createdAt = now.toISOString().replace('T', ' ').slice(0, 19);
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    .toISOString()
+    .replace('T', ' ')
+    .slice(0, 19);
+
+  const sessionData = {
+    id: sessionId,
+    userId: data.userId,
+    username: data.username,
+    email: data.email,
+    createdAt,
+    expiresAt
+  };
+
+  // Store session in database
+  const [result] = await pool.execute(
+    'INSERT INTO sessions (id, user_id, username, email, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
+    [sessionData.id, sessionData.userId, sessionData.username, sessionData.email, 
+     sessionData.createdAt, sessionData.expiresAt]
+  );
+
+  // Set secure cookie
+  const cookie = await setSessionCookie(sessionData.id);
+  
+  return cookie;
+}
+```
+
+Let's visualize how the session expiration system works:
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant NextJS App
+    participant Session Store
+    participant Database
+
+    Browser->>NextJS App: Submit login form
+    NextJS App->>Session Store: Create session
+    Note over Session Store: Generate session ID<br/>Set expires_at = now + 24h
+    Session Store->>Database: Store session data
+    Session Store-->>NextJS App: Return session token
+    NextJS App->>Browser: Set secure cookie
+
+    Note over Browser,Database: Subsequent requests
+
+    Browser->>NextJS App: Request protected page
+    NextJS App->>Session Store: Validate session
+    Session Store->>Database: Check session
+    alt Session valid and not expired
+        Database-->>Session Store: Session active
+        Session Store-->>NextJS App: Return user data
+        NextJS App->>Browser: Render page
+    else Session expired
+        Database-->>Session Store: Session expired
+        Session Store-->>NextJS App: Session invalid
+        NextJS App->>Browser: Redirect to login
+    end
+```
+
+Let's break down how the session expiration system works:
+
+1. **Session Creation**:
+          - When a user logs in, we create a session with two timestamps:
+                    - `createdAt`: Records when the session was created
+    - `expiresAt`: Set to 24 hours after creation
+
+
+  - Both timestamps are formatted as MySQL-compatible datetime strings (e.g., '2025-07-31 10:48:24')
+
+
+2. **Session Validation**:
+          - On each protected page request, the system checks two things:
+                    - If the session exists in the database
+    - If the current time is before the `expiresAt` timestamp
+
+
+  - If either check fails, the user is redirected to the login page
+
+
+3. **Database Schema**:
+        ```sql
+CREATE TABLE sessions (
+  id CHAR(16) PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  username VARCHAR(255),
+  email VARCHAR(255),
+  created_at DATETIME NOT NULL,
+  expires_at DATETIME NOT NULL,
+  INDEX idx_user_id (user_id),
+  INDEX idx_expires_at (expires_at)
+);
+```
+
+
+
+The error you were seeing occurred because MySQL's DATETIME columns expect a specific format. By using `toISOString().replace('T', ' ').slice(0, 19)`, we convert the JavaScript date to MySQL's expected format (YYYY-MM-DD HH:MM:SS).
+
+This implementation provides:
+
+- Secure session management
+- Automatic session expiration
+- Proper MySQL datetime handling
+- Efficient session validation
+
+Remember to periodically clean up expired sessions to prevent your database from growing indefinitely.
+
+Let's implement a simpler session system that avoids the ID length issues. Here's a complete solution:
+
+```typescript
+// lib/session.ts
+'use server';
+
+import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
+
+export async function createSession(data: {
+  userId: string;
+  username: string;
+  email: string;
+}) {
+  // Generate a short session ID (16 characters)
+  const sessionId = crypto.randomBytes(8).toString('hex');
+  
+  const sessionData = {
+    id: sessionId,
+    userId: data.userId,
+    username: data.username,
+    email: data.email,
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  };
+
+  // Store session in database
+  const [result] = await pool.execute(
+    'INSERT INTO sessions SET ?',
+    [sessionData]
+  );
+
+  // Set secure cookie
+  const cookie = await setSessionCookie(sessionId);
+  
+  return cookie;
+}
+
+async function setSessionCookie(sessionId: string) {
+  const cookie = serialize('session', sessionId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 24 * 60 * 60 // 24 hours
+  });
+
+  return cookie;
+}
+```
+
+Here's the database schema:
+
+```sql
+CREATE TABLE sessions (
+  id CHAR(16) PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  username VARCHAR(255),
+  email VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP NOT NULL,
+  INDEX idx_user_id (user_id),
+  INDEX idx_expires_at (expires_at)
+);
+```
+
+Let's visualize how this session system works:
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant NextJS App
+    participant Auth Provider
+    participant Session Store
+    participant Database
+
+    Browser->>NextJS App: Submit login form (email/password)
+    NextJS App->>Auth Provider: Verify credentials
+    Auth Provider->>Database: Check user exists
+    Database-->>Auth Provider: Return user data
+    Auth Provider->>Session Store: Create session
+    Note over Session Store: Generate short ID (16 chars)
+    Session Store->>Database: Store session data
+    Session Store-->>NextJS App: Return session token
+    NextJS App->>Browser: Set secure cookie
+    Note over Browser: Cookie sent with<br/>subsequent requests
+    Browser->>NextJS App: Request protected page
+    NextJS App->>Session Store: Validate session
+    Session Store->>Database: Check session
+    Database-->>Session Store: Session valid
+    Session Store-->>NextJS App: Return user data
+    NextJS App->>Browser: Render page
+```
+
+Let's break down the key points in the session flow:
+
+1. **Session ID Generation**:
+          - We use `crypto.randomBytes(8).toString('hex')` to generate a 16-character hexadecimal ID
+  - This is shorter than UUID (which is 36 characters) and guaranteed to be unique
+  - The ID is stored in both the database and cookie
+
+
+2. **Session Storage**:
+          - The session data includes user information, timestamps, and the session ID
+  - We store this in the database for security and persistence
+  - The cookie only contains the session ID, not the full session data
+
+
+3. **Cookie Management**:
+          - The session cookie is set with security flags (httpOnly, secure)
+  - It expires after 24 hours to prevent indefinite sessions
+  - The cookie is sent with every request to authenticate the user
+
+
+
+To implement this properly, you'll need to create a sessions table in your database:
+
+```sql
+CREATE TABLE sessions (
+  id CHAR(16) PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  username VARCHAR(255),
+  email VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP NOT NULL,
+  INDEX idx_user_id (user_id),
+  INDEX idx_expires_at (expires_at)
+);
+```
+
+This schema ensures:
+
+- The id column is large enough for our 16-character session IDs
+- Proper indexing for fast lookups
+- Secure storage of session data
+
+The error you were seeing occurred because your 'id' column was likely defined as VARCHAR(255) or similar, but the UUID being generated was too long. By using a shorter, fixed-length session ID and properly defining the database schema, we avoid the truncation error while maintaining security and functionality.
+
+Remember to handle session cleanup by periodically removing expired sessions from your database to prevent it from growing indefinitely.
