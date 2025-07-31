@@ -12,20 +12,29 @@ export async function createSession(data: {
 }) {
   // Generate a short session ID (16 characters)
   const sessionId = crypto.randomBytes(8).toString('hex');
+
+   // Format dates for MySQL compatibility
+  const now = new Date();
+  const createdAt = now.toISOString().replace('T', ' ').slice(0, 19);
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    .toISOString()
+    .replace('T', ' ')
+    .slice(0, 19);
   
   const sessionData = {
     id: sessionId,
     userId: data.userId,
     username: data.username,
     email: data.email,
-    createdAt: new Date().toISOString(),
-    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    createdAt,
+    expiresAt
   };
 
   // Store session in database
   const [result] = await pool.execute(
-    'INSERT INTO sessions SET ?',
-    [sessionData]
+    'INSERT INTO sessions (id, user_id, username, email, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
+    [sessionData.id, sessionData.userId, sessionData.username, sessionData.email, 
+     sessionData.createdAt, sessionData.expiresAt]
   );
 
   // Set secure cookie
