@@ -5,6 +5,7 @@ import Table from "../table/page";
 
 
 export default function Home2(){
+    
     return(
         <>
 <div className="w-full min-h-screen m-0 font-sans bg-gray-100">
@@ -20,7 +21,7 @@ export default function Home2(){
             />
           </div>
         <div className="hidden sm:flex sm:items-center">
-          <a href="#" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Computer Seat Booking System</a>
+          <a href="/home" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Computer Seat Booking System</a>
           <a href="#" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">About</a>
           <a href="/auth/login" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Logout</a>
           {/*<a href="#" className="text-sm font-semibold text-gray-800 hover:text-purple-600">Pricing</a> */}

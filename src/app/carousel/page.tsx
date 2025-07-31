@@ -20,6 +20,7 @@ const AirplaneSeatBooking = () => {
       rows: 7,
       seatsPerRow: 8,
       unused: ['4E','5E'],
+      occupied: [],
       layout: [
         { section: 'Room 601', rows: 7, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -31,6 +32,7 @@ const AirplaneSeatBooking = () => {
       rows: 8,
       seatsPerRow: 8,
       unused: ['1A','1B','1G','1H','2A','5A','5H','6A','6H'],
+      occupied: [],
       layout: [
         { section: 'Room 602', rows: 8, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -42,6 +44,7 @@ const AirplaneSeatBooking = () => {
       rows: 7,
       seatsPerRow: 8,
       unused: ['4E','5E'],
+      occupied: [],
       layout: [
         { section: 'Room 701', rows: 7, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -53,6 +56,7 @@ const AirplaneSeatBooking = () => {
       rows: 8,
       seatsPerRow: 8,
       unused: ['1B','1C','1D','1E','1F','1G','1H','5E','6E'],
+      occupied: [],
       layout: [
         { section: 'Room 801', rows: 8, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -64,6 +68,7 @@ const AirplaneSeatBooking = () => {
       rows: 8,
       seatsPerRow: 8,
       unused: ['1A','1B','1G','1H','5A','5H', '6A','6H'],
+      occupied: [],
       layout: [
         { section: 'Room 802', rows: 8, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -136,10 +141,13 @@ const AirplaneSeatBooking = () => {
     alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
   };
 
+  const handleBookTable = () =>{
+    if (selectedSeats.length === 0) return;
+  };
   // Reset selections when airplane changes
-  //useEffect(() => {
-  //  setSelectedSeats([]);
-  //}, [selectedAirplane]);
+  useEffect(() => {
+  setSelectedSeats([]);
+  }, [selectedAirplane]);
 
   // Render seat
   const renderSeat = (seat) => {
@@ -264,7 +272,6 @@ const AirplaneSeatBooking = () => {
             </div>
 
             {/* Legend */}
-            {/* Legend */}
 <div className="flex justify-center gap-6 mb-6 text-sm">
   <div className="flex items-center gap-2">
     <div className="w-4 h-4 bg-green-100 border-2 border-green-400 "></div>
@@ -321,23 +328,29 @@ const AirplaneSeatBooking = () => {
         )}
 
         {/* Reservation Table */}
-    <table className="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
+     {selectedSeats.length > 0 &&<table className="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase dark:text-gray-400">
             <tr>
-                
+
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Student ID</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">First</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Last</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Username</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Room</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Seat</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Start Date</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Expired Date</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Date In</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Date Out</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Submit</th>
             </tr>
         </thead>
         <tbody>
             <tr className="border-b border-gray-200 dark:border-gray-700">
+
+              <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Username</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedAirplane.id}</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedSeats}</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"><input type="datetime-local" id="starting-time" name="start-time" /></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"><input type="datetime-local" id="ending-time" name="end-time" /></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"> <button type="submit">Submit</button></th>
                 </tr>
             <tr className="border-b border-gray-200 dark:border-gray-700">
                 
@@ -348,7 +361,7 @@ const AirplaneSeatBooking = () => {
             <tr>
             </tr>
         </tbody>
-    </table>
+    </table> } 
 
       </div>
     </div>

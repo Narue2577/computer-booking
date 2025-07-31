@@ -3,6 +3,7 @@
 import pool from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
+import { createSession } from '@/lib/session';
 
 export const loginUser = async (_, formData) => {
   const rawData = {
@@ -31,6 +32,12 @@ export const loginUser = async (_, formData) => {
       return { message: "Invalid email or password.", success: false };
     }
 
+     // Create session
+    await createSession({
+      userId: user.id,
+      username: user.full_name,
+      email: user.email
+    });
     // Here you would typically set up session/JWT
     // For now, just redirect to dashboard
     
