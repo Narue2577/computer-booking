@@ -1,7 +1,6 @@
 'use client'
 import Image from "next/image";
 import AirplaneSeatBooking from "../carousel/page";
-import Table from "../table/page";
 import { useSession, signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
 
@@ -12,7 +11,6 @@ export default function Home2(){
 
   if (status === 'loading') return <p>Loading...</p>
   if (!session) return redirect('./auth/login');
-
     return(
         <>
 <div className="w-full min-h-screen m-0 font-sans bg-gray-100">
@@ -95,14 +93,7 @@ export default function Home2(){
   </div>
 
 
-<AirplaneSeatBooking>
-</AirplaneSeatBooking>
-
-<Table>
-</Table>
-
-
-
+<AirplaneSeatBooking tableHeader={ session.user?.username} />
 
 <footer className="w-full shadow-sm bg-neutral-400 dark:bg-gray-900">
     <div className="w-full max-w-screen-xl p-4 mx-auto md:py-8">

@@ -3,7 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
 
-const AirplaneSeatBooking = () => {
+interface AirplaneSeatBookingProps {
+  tableHeader?: string; // Prop for the <th> content
+}
+
+
+const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
+ 
+
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedUnuseds, setSelectedUnuseds] = useState([]);
@@ -148,6 +155,8 @@ const AirplaneSeatBooking = () => {
   useEffect(() => {
   setSelectedSeats([]);
   }, [selectedAirplane]);
+
+  
 
   // Render seat
   const renderSeat = (seat) => {
@@ -345,7 +354,7 @@ const AirplaneSeatBooking = () => {
             <tr className="border-b border-gray-200 dark:border-gray-700">
 
               <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Username</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{tableHeader || 'Default Header'}</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedAirplane.id}</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedSeats}</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"><input type="datetime-local" id="starting-time" name="start-time" /></th>
