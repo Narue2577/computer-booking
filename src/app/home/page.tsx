@@ -1,12 +1,18 @@
+'use client'
 import Image from "next/image";
 import AirplaneSeatBooking from "../carousel/page";
 import Table from "../table/page";
-import { useSession } from '@/lib/session';
+import { useSession, signOut } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 
 
 export default function Home2(){
-    
+    const { data: session, status } = useSession()
+
+  if (status === 'loading') return <p>Loading...</p>
+  if (!session) return redirect('./auth/login');
+
     return(
         <>
 <div className="w-full min-h-screen m-0 font-sans bg-gray-100">
@@ -22,9 +28,9 @@ export default function Home2(){
             />
           </div>
         <div className="hidden sm:flex sm:items-center">
-          <a href="/home" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Computer Seat Booking System</a>
+          <a href="/home" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">{ session.user?.username}</a>
           <a href="#" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">About</a>
-          <a href="/auth/login" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Logout</a>
+          <a href="#" onClick={() => signOut()} className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Logout</a>
           {/*<a href="#" className="text-sm font-semibold text-gray-800 hover:text-purple-600">Pricing</a> */}
           <button data-popover-target="popover-user-profile" type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">User profile</button>
 
