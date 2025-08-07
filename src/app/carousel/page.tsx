@@ -354,7 +354,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
             <tr className="border-b border-gray-200 dark:border-gray-700">
 
               <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{tableHeader || 'Default Header'}</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{tableHeader || 'Default'}</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedAirplane.id}</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedSeats}</th>
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"><input type="datetime-local" id="starting-time" name="start-time" /></th>
@@ -362,7 +362,13 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                 <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"> <button type="submit">Submit</button></th>
                 </tr>
             <tr className="border-b border-gray-200 dark:border-gray-700">
-                
+              <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" ></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
             </tr>
             <tr className="border-b border-gray-200 dark:border-gray-700">
                 

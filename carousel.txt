@@ -133,3 +133,5 @@ Click the left/right arrow buttons
 Use keyboard navigation (if you add that later)
 
 The carousel will stay on the current slide until the user actively interacts with it. If you ever want to re-enable the auto-slide feature, just uncomment those lines!RetryClaude can make mistakes. Please double-check responses.
+
+https://dev.to/franciscolunadev82/getting-start-with-tables-using-nextjs-tanstack-table-and-typescript-2aig
