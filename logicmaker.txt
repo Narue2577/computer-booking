@@ -67,3 +67,45 @@ export default function Table() {
     );
 
 }
+
+ {/* Reservation Table */}
+     {selectedSeats.length > 0 &&<table className="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
+        <thead className="text-xs text-gray-700 uppercase dark:text-gray-400">
+            <tr>
+
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Username</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Room</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Seat</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Date In</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Date Out</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Submit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr className="border-b border-gray-200 dark:border-gray-700">
+
+              <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{tableHeader || 'Default'}</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedAirplane.id}</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedSeats}</th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"><input type="datetime-local" id="starting-time" name="start-time" /></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"><input type="datetime-local" id="ending-time" name="end-time" /></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"> <button type="submit">Submit</button></th>
+                </tr>
+            <tr className="border-b border-gray-200 dark:border-gray-700">
+              <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" ></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
+            </tr>
+            <tr className="border-b border-gray-200 dark:border-gray-700">
+                
+            </tr>
+            <tr>
+            </tr>
+        </tbody>
+    </table> } 

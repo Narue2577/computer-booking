@@ -148,9 +148,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
   };
 
-  const handleBookTable = () =>{
-    if (selectedSeats.length === 0) return;
-  };
+ 
   // Reset selections when airplane changes
   useEffect(() => {
   setSelectedSeats([]);
@@ -312,11 +310,38 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         {selectedSeats.length > 0 && (
           <div className="p-4 mb-6 rounded-lg bg-blue-50">
             <h3 className="mb-2 text-lg font-semibold text-blue-800">Booking Summary</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
+            <div className="p-3 mb-4 font-medium bg-white min-w-32 min-h-48">
+    <div className="flex-none w-32 text-center rounded-t shadow-lg lg:rounded-t-none lg:rounded-l ">
+        <div className="block overflow-hidden text-center rounded-t ">
+            <div className="py-1 text-white bg-blue-500">
+                March
+            </div>
+            <div className="pt-1 bg-white border-l border-r border-white">
+                <span className="text-5xl font-bold leading-tight">
+                17
+              </span>
+            </div>
+            <div className="-mb-1 text-center bg-white border-b border-l border-r border-white rounded-b-lg -pt-2">
+                <span className="text-sm">
+                Sunday
+              </span>
+            </div>
+            <div className="pb-2 text-center bg-white border-b border-l border-r border-white rounded-b-lg">
+                <span className="text-xs leading-normal">
+                8:00 am to 5:00 pm
+              </span>
+            </div>
+        </div>
+        
+    </div>
+     <div>
+                <p><strong>Username:</strong> {tableHeader || 'Default'}</p>
                 <p><strong>Room:</strong> {selectedAirplane.name}</p>
-                <p><strong>Selected Seats:</strong> {selectedSeats.join(', ')}</p>
+                <p><strong>Seats:</strong> {selectedSeats.join(', ')}</p>
               </div>
+</div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+             
               <div>
                {/*} <p><strong>Price per seat:</strong> ${selectedAirplane.price}</p>
                 <p><strong>Total:</strong> ${selectedAirplane.price * selectedSeats.length}</p>
@@ -336,47 +361,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
           </div>
         )}
 
-        {/* Reservation Table */}
-     {selectedSeats.length > 0 &&<table className="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase dark:text-gray-400">
-            <tr>
-
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Username</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Room</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Seat</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Date In</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Date Out</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">Submit</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr className="border-b border-gray-200 dark:border-gray-700">
-
-              <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" >#</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{tableHeader || 'Default'}</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedAirplane.id}</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800">{selectedSeats}</th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"><input type="datetime-local" id="starting-time" name="start-time" /></th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"><input type="datetime-local" id="ending-time" name="end-time" /></th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"> <button type="submit">Submit</button></th>
-                </tr>
-            <tr className="border-b border-gray-200 dark:border-gray-700">
-              <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800" ></th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
-                <th scope="col" className="px-6 py-3 text-center bg-gray-50 dark:bg-gray-800"></th>
-            </tr>
-            <tr className="border-b border-gray-200 dark:border-gray-700">
-                
-            </tr>
-            <tr>
-            </tr>
-        </tbody>
-    </table> } 
+       
 
       </div>
     </div>
