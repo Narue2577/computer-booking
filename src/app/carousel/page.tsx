@@ -310,38 +310,13 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         {selectedSeats.length > 0 && (
           <div className="p-4 mb-6 rounded-lg bg-blue-50">
             <h3 className="mb-2 text-lg font-semibold text-blue-800">Booking Summary</h3>
-            <div className="p-3 mb-4 font-medium bg-white min-w-32 min-h-48">
-    <div className="flex-none w-32 text-center rounded-t shadow-lg lg:rounded-t-none lg:rounded-l ">
-        <div className="block overflow-hidden text-center rounded-t ">
-            <div className="py-1 text-white bg-blue-500">
-                March
-            </div>
-            <div className="pt-1 bg-white border-l border-r border-white">
-                <span className="text-5xl font-bold leading-tight">
-                17
-              </span>
-            </div>
-            <div className="-mb-1 text-center bg-white border-b border-l border-r border-white rounded-b-lg -pt-2">
-                <span className="text-sm">
-                Sunday
-              </span>
-            </div>
-            <div className="pb-2 text-center bg-white border-b border-l border-r border-white rounded-b-lg">
-                <span className="text-xs leading-normal">
-                8:00 am to 5:00 pm
-              </span>
-            </div>
-        </div>
-        
-    </div>
-     <div>
-                <p><strong>Username:</strong> {tableHeader || 'Default'}</p>
-                <p><strong>Room:</strong> {selectedAirplane.name}</p>
-                <p><strong>Seats:</strong> {selectedSeats.join(', ')}</p>
-              </div>
-</div>
             <div className="grid grid-cols-2 gap-4 text-sm">
-             
+              <div>
+                 <p><strong>Username:</strong> {tableHeader || 'Default'} <strong>Room:</strong> {selectedAirplane.name}</p>
+                <p><strong>Selected Seats:</strong> {selectedSeats.join(', ')}</p>
+                <p><strong>Date In:</strong> <input type="datetime-local" id="birthdaytime" name="birthdaytime" /></p>
+                 <p><strong>Date out:</strong> <input type="datetime-local" id="deathtime" name="deathtime" /></p>
+              </div>
               <div>
                {/*} <p><strong>Price per seat:</strong> ${selectedAirplane.price}</p>
                 <p><strong>Total:</strong> ${selectedAirplane.price * selectedSeats.length}</p>
