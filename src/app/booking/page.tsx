@@ -1,20 +1,38 @@
 'use client'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import React, { useState } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 
 
 export default function Booking() {
-const [value] = useState(new Date());
+
 
     return (
         <>
         <div>
-           
-            <Calendar
-                
-                value={value}
-            />
+           <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Username</TableHead>
+                    <TableHead>Room</TableHead>
+                    <TableHead>Seat</TableHead>
+                    <TableHead>Date-In</TableHead>
+                    <TableHead>Date-Out</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                <TableRow>
+                    <TableCell>1</TableCell>
+                    <TableCell>Eatery</TableCell>
+                    <TableCell>Room801</TableCell>
+                    <TableCell>4C</TableCell>
+                    <TableCell>2025-07-30 17:10:37</TableCell>
+                    <TableCell>2025-07-31 17:10:37</TableCell>
+
+                </TableRow>
+            </TableBody>
+           </Table>
+            
         </div>
        </>
     );  
