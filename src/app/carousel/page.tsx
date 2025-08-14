@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Booking from '../booking/page';
 
 interface AirplaneSeatBookingProps {
   tableHeader?: string; // Prop for the <th> content
@@ -335,6 +336,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
             </button>
           </div>
         )}
+        <Booking></Booking>
 
        
 
