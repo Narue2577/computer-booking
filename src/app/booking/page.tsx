@@ -1,6 +1,10 @@
 'use client'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import React, { useState } from 'react';
+import CountCartItem from '../components/CountCartItem';
+import { Button } from '@/components/ui/button';
+
+
 
 
 export default function Booking() {
@@ -8,6 +12,7 @@ export default function Booking() {
 
     return (
         <>
+        <div><CountCartItem/></div>
         <div>
            <Table>
             <TableHeader>
@@ -30,9 +35,17 @@ export default function Booking() {
                     <TableCell>2025-07-31 17:10:37</TableCell>
 
                 </TableRow>
+                <TableRow>
+                <TableCell>
+                
+                </TableCell>
+                </TableRow>
             </TableBody>
            </Table>
-            
+           <div className='flex flex-row'></div>
+           <Button className='bg-blue-400'>Back</Button>
+           <Button className='bg-red-500'>Submit</Button>
+
         </div>
        </>
     );  
