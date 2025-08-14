@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface AirplaneSeatBookingProps {
   tableHeader?: string; // Prop for the <th> content
@@ -14,7 +15,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedUnuseds, setSelectedUnuseds] = useState([]);
-  const [passengerCount, setPassengerCount] = useState(1);
+  const [passengerCount, setPassengerCount] = useState(4);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookings, setBookings] = useState({});
 
@@ -247,8 +248,8 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         {/* Passenger Count Selection */}
         {selectedAirplane && (
           <div className="mb-6">
-            <h2 className="mb-4 text-xl font-semibold text-gray-700">Number of Reservations</h2>
-            <div className="flex items-center gap-4">
+            <h2 className="mb-4 text-xl font-semibold text-gray-700">Number of Reservations: <Button>0</Button> </h2>
+            {/*<div className="flex items-center gap-4">
               <label className="text-sm font-medium text-gray-600">Seats:</label>
               <select
                 value={passengerCount}
@@ -262,7 +263,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                   <option key={num} value={num}>{num}</option>
                 ))}
               </select>
-            </div>
+            </div> */}
           </div>
         )} 
 
@@ -324,14 +325,13 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
             </div>
             <button
               onClick={handleBooking}
-              disabled={selectedSeats.length !== passengerCount}
-              className={`mt-4 px-6 py-2 rounded-lg font-medium transition-colors duration-200 ${
-                selectedSeats.length === passengerCount
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+            
+              className={`mt-4 px-6 py-2 rounded-lg font-medium transition-colors duration-200 
+                  bg-blue-600 text-white hover:bg-blue-700`}
             >
-              {selectedSeats.length === passengerCount ? 'Confirm Booking' : `Select ${passengerCount - selectedSeats.length} more seat(s)`}
+            {/*  {selectedSeats.length === passengerCount ? 'Confirm Booking' : `Select ${passengerCount - selectedSeats.length} more seat(s)`} */}
+             {/* disabled={selectedSeats.length !== passengerCount} */}
+            {'Confirm Booking' }
             </button>
           </div>
         )}
