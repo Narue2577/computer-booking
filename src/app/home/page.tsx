@@ -8,6 +8,7 @@ import Navbar from "../navbar/page";
 
 
 
+
 export default function Home2(){
     const { data: session, status } = useSession()
 
@@ -23,6 +24,7 @@ export default function Home2(){
 
 
 <AirplaneSeatBooking tableHeader={ session.user?.username} />
+
 
 <footer className="w-full shadow-sm bg-neutral-400 dark:bg-gray-900">
     <div className="w-full max-w-screen-xl p-4 mx-auto md:py-8">

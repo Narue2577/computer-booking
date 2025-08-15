@@ -5,6 +5,7 @@ import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Booking from '../booking/page';
 
+
 interface AirplaneSeatBookingProps {
   tableHeader?: string; // Prop for the <th> content
 }
@@ -334,9 +335,11 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
              {/* disabled={selectedSeats.length !== passengerCount} */}
             {'Confirm Booking' }
             </button>
+            <Booking roomTab={selectedAirplane.id} seatTab={selectedSeats} ></Booking>
           </div>
+          
         )}
-        <Booking></Booking>
+      
 
        
 
