@@ -11,6 +11,8 @@ interface TableProps {
   seatTab?: string; // Prop for the <th> content
 
 }
+const count: number=  0;
+  
 
 
 

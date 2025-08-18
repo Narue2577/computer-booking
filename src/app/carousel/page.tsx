@@ -1,25 +1,20 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Booking from '../booking/page';
-
 
 interface AirplaneSeatBookingProps {
-  tableHeader?: string; // Prop for the <th> content
+  tableHeader?: string;
 }
 
-
 const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
- 
-
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [selectedUnuseds, setSelectedUnuseds] = useState([]);
   const [passengerCount, setPassengerCount] = useState(4);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookings, setBookings] = useState({});
+  const [dateTimeInputs, setDateTimeInputs] = useState({});
 
   // Sample airplane data with different configurations
   const airplanes = [
@@ -87,54 +82,76 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
 
   // Generate seat map for an airplane
   const generateSeatMap = (airplane) => {
-  const seatMap = [];
-  let currentRow = 1;
+    const seatMap = [];
+    let currentRow = 1;
 
-  airplane.layout.forEach((section) => {
-    for (let row = 0; row < section.rows; row++) {
-      const rowSeats = [];
-      const seatLetters = section.seatWidth.replace(/\s+/g, '').split('');
-      
-      seatLetters.forEach((letter) => {
-        const seatId = `${currentRow}${letter}`;
-        rowSeats.push({
-          id: seatId,
-          row: currentRow,
-          letter: letter,
-          occupied: bookings[airplane.id]?.includes(seatId),
-          unused: airplane.unused.includes(seatId), // Add unused status
-          selected: selectedSeats.includes(seatId), 
+    airplane.layout.forEach((section) => {
+      for (let row = 0; row < section.rows; row++) {
+        const rowSeats = [];
+        const seatLetters = section.seatWidth.replace(/\s+/g, '').split('');
+        
+        seatLetters.forEach((letter) => {
+          const seatId = `${currentRow}${letter}`;
+          rowSeats.push({
+            id: seatId,
+            row: currentRow,
+            letter: letter,
+            occupied: bookings[airplane.id]?.includes(seatId),
+            unused: airplane.unused.includes(seatId),
+            selected: selectedSeats.includes(seatId), 
+          });
         });
-      });
-      
-      seatMap.push({
-        rowNumber: currentRow,
-        seats: rowSeats,
-        section: section.section,
-        seatWidth: section.seatWidth
-      });
-      currentRow++;
-    }
-  });
+        
+        seatMap.push({
+          rowNumber: currentRow,
+          seats: rowSeats,
+          section: section.section,
+          seatWidth: section.seatWidth
+        });
+        currentRow++;
+      }
+    });
 
-  return seatMap;
-};
+    return seatMap;
+  };
 
   // Handle seat selection
   const handleSeatClick = (seatId, occupied, unused) => {
-  if (occupied || unused) return; // Prevent selection of occupied or unused seats
+    if (occupied || unused) return;
 
-  if (selectedSeats.includes(seatId)) {
-    setSelectedSeats(selectedSeats.filter(id => id !== seatId));
-  } else {
-    if (selectedSeats.length < passengerCount) {
-      setSelectedSeats([...selectedSeats, seatId]);
+    if (selectedSeats.includes(seatId)) {
+      setSelectedSeats(selectedSeats.filter(id => id !== seatId));
     } else {
-      // Replace first selected seat if limit reached
-      setSelectedSeats([...selectedSeats.slice(1), seatId]);
+      if (selectedSeats.length < passengerCount) {
+        setSelectedSeats([...selectedSeats, seatId]);
+      } else {
+        setSelectedSeats([...selectedSeats.slice(1), seatId]);
+      }
     }
-  }
-};
+  };
+
+  // Handle removing a seat from the booking table
+  const handleRemoveSeat = (seatId) => {
+    setSelectedSeats(selectedSeats.filter(id => id !== seatId));
+    // Remove datetime inputs for removed seat
+    setDateTimeInputs(prev => {
+      const newInputs = { ...prev };
+      delete newInputs[seatId];
+      return newInputs;
+    });
+  };
+
+  // Handle datetime input changes
+  const handleDateTimeChange = (seatId, field, value) => {
+    setDateTimeInputs(prev => ({
+      ...prev,
+      [seatId]: {
+        ...prev[seatId],
+        [field]: value
+      }
+    }));
+  };
+
   // Handle booking confirmation
   const handleBooking = () => {
     if (selectedSeats.length === 0) return;
@@ -147,45 +164,44 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     
     setBookings(newBookings);
     setSelectedSeats([]);
+    setDateTimeInputs({});
     setShowBookingForm(false);
     alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
   };
 
- 
   // Reset selections when airplane changes
   useEffect(() => {
-  setSelectedSeats([]);
+    setSelectedSeats([]);
+    setDateTimeInputs({});
   }, [selectedAirplane]);
-
-  
 
   // Render seat
   const renderSeat = (seat) => {
-  const baseClasses = "w-8 h-8 border-2 flex items-center justify-center text-xs font-medium cursor-pointer transition-all duration-200";
-  
-  let seatClasses = baseClasses;
-  
-  if (seat.unused) { // Check for unused status first
-    seatClasses += " bg-black border-gray-800 text-white cursor-not-allowed";
-  } else if (seat.occupied) {
-    seatClasses += " bg-red-200 border-red-400 text-red-800 cursor-not-allowed";
-  } else if (seat.selected) {
-    seatClasses += " bg-blue-500 border-blue-600 text-white transform scale-110";
-  } else {
-    seatClasses += " bg-green-100 border-green-400 text-green-800 hover:bg-green-200";
-  }
+    const baseClasses = "w-8 h-8 border-2 flex items-center justify-center text-xs font-medium cursor-pointer transition-all duration-200";
+    
+    let seatClasses = baseClasses;
+    
+    if (seat.unused) {
+      seatClasses += " bg-black border-gray-800 text-white cursor-not-allowed";
+    } else if (seat.occupied) {
+      seatClasses += " bg-red-200 border-red-400 text-red-800 cursor-not-allowed";
+    } else if (seat.selected) {
+      seatClasses += " bg-blue-500 border-blue-600 text-white transform scale-110";
+    } else {
+      seatClasses += " bg-green-100 border-green-400 text-green-800 hover:bg-green-200";
+    }
 
-  return (
-    <div
-      key={seat.id}
-      className={seatClasses}
-      onClick={() => handleSeatClick(seat.id, seat.occupied, seat.unused)}
-      title={`Seat ${seat.id} - ${seat.section} ${seat.unused ? '(Not Available)' : seat.occupied ? '(Occupied)' : '(Available)'}`}
-    >
-      {seat.unused ? 'X' : seat.occupied ? <X className="w-3 h-3 text-red-800" /> : seat.selected ? <Check className="w-3 h-3 text-white" /> : seat.letter}
-    </div>
-  );
-};
+    return (
+      <div
+        key={seat.id}
+        className={seatClasses}
+        onClick={() => handleSeatClick(seat.id, seat.occupied, seat.unused)}
+        title={`Seat ${seat.id} - ${seat.section} ${seat.unused ? '(Not Available)' : seat.occupied ? '(Occupied)' : '(Available)'}`}
+      >
+        {seat.unused ? 'X' : seat.occupied ? <X className="w-3 h-3 text-red-800" /> : seat.selected ? <Check className="w-3 h-3 text-white" /> : seat.letter}
+      </div>
+    );
+  };
 
   // Render seat row
   const renderSeatRow = (row) => {
@@ -214,11 +230,123 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     );
   };
 
+  // BookingTable component (embedded)
+  const BookingTable = () => (
+    <div className="p-6 mb-6 rounded-lg bg-blue-50">
+      <h3 className="mb-4 text-lg font-semibold text-blue-800">Booking Summary</h3>
+      
+      <div className="mb-4 text-sm">
+        <p><strong>Username:</strong> {tableHeader || 'Default'}</p>
+        <p><strong>Room:</strong> {selectedAirplane.name}</p>
+        <p><strong>Total Seats:</strong> {selectedSeats.length}</p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full bg-white border border-gray-300 rounded-lg">
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                Seat ID
+              </th>
+              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                Row
+              </th>
+              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                Position
+              </th>
+              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                Date In
+              </th>
+              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                Date Out
+              </th>
+              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                Status
+              </th>
+              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {selectedSeats.map((seatId, index) => {
+              const row = seatId.match(/\d+/)[0];
+              const position = seatId.match(/[A-H]/)[0];
+              
+              return (
+                <tr key={seatId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                    <div className="flex items-center">
+                      <div className="flex items-center justify-center w-6 h-6 mr-2 text-xs font-medium text-white bg-blue-500 border border-blue-600 rounded">
+                        <Check className="w-3 h-3" />
+                      </div>
+                      {seatId}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    Row {row}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    Position {position}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    <input 
+                      type="datetime-local" 
+                      className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={dateTimeInputs[seatId]?.dateIn || ''}
+                      onChange={(e) => handleDateTimeChange(seatId, 'dateIn', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    <input 
+                      type="datetime-local" 
+                      className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={dateTimeInputs[seatId]?.dateOut || ''}
+                      onChange={(e) => handleDateTimeChange(seatId, 'dateOut', e.target.value)}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+                      Reserved
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <button
+                      onClick={() => handleRemoveSeat(seatId)}
+                      className="text-red-600 transition-colors duration-200 hover:text-red-800"
+                      title="Remove seat"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {selectedSeats.length === 0 && (
+        <div className="py-8 text-center text-gray-500">
+          No seats selected
+        </div>
+      )}
+
+      {selectedSeats.length > 0 && (
+        <button
+          onClick={handleBooking}
+          className="px-6 py-2 mt-4 font-medium text-white transition-colors duration-200 bg-blue-600 rounded-lg hover:bg-blue-700"
+        >
+          Confirm Booking
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div className="max-w-6xl min-h-screen p-6 mx-auto bg-gray-50">
       <div className="p-6 bg-white rounded-lg shadow-lg">
         <div className="flex items-center gap-3 mb-6">
-          {/*<Plane className="w-8 h-8 text-blue-600" />*/}
           <h1 className="text-3xl font-bold text-gray-800">Computer Seat Booking System</h1>
         </div>
 
@@ -238,10 +366,9 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
               >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="justify-center text-lg font-bold text-center text-gray-800">{airplane.name}</h3>
-                  {/*<span className="text-lg font-bold text-blue-600">${airplane.price}</span> */}
                 </div>
                 <p className="justify-center mb-1 text-sm text-center text-gray-600">Capacity: {airplane.capacity} </p>
-                <p className="justify-center mb-1 text-sm text-center text-gray-600">Occupied:  </p>
+                <p className="justify-center mb-1 text-sm text-center text-gray-600">Occupied: {bookings[airplane.id]?.length || 0} </p>
               </div>
             ))}
           </div>
@@ -250,22 +377,9 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         {/* Passenger Count Selection */}
         {selectedAirplane && (
           <div className="mb-6">
-            <h2 className="mb-4 text-xl font-semibold text-gray-700">Number of Reservations: <Button>0</Button> </h2>
-            {/*<div className="flex items-center gap-4">
-              <label className="text-sm font-medium text-gray-600">Seats:</label>
-              <select
-                value={passengerCount}
-                onChange={(e) => {
-                  setPassengerCount(Number(e.target.value));
-                  setSelectedSeats([]);
-                }}
-                className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {[1, 2, 3, 4, 5, 6].map(num => (
-                  <option key={num} value={num}>{num}</option>
-                ))}
-              </select>
-            </div> */}
+            <h2 className="mb-4 text-xl font-semibold text-gray-700">
+              Number of Reservations: <Button>{selectedSeats.length}</Button>
+            </h2>
           </div>
         )} 
 
@@ -276,30 +390,28 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
               <h2 className="text-xl font-semibold text-gray-700">
                 Select Seats - {selectedAirplane.name}
               </h2>
-              {/*<div className="text-sm text-gray-600">
-                Selected: {selectedSeats.length} / {passengerCount}
-              </div> */}
             </div>
 
             {/* Legend */}
-<div className="flex justify-center gap-6 mb-6 text-sm">
-  <div className="flex items-center gap-2">
-    <div className="w-4 h-4 bg-green-100 border-2 border-green-400 "></div>
-    <span>Available</span>
-  </div>
-  <div className="flex items-center gap-2">
-    <div className="w-4 h-4 bg-blue-500 border-2 border-blue-600 "></div>
-    <span>Selected</span>
-  </div>
-  <div className="flex items-center gap-2">
-    <div className="w-4 h-4 bg-red-200 border-2 border-red-400 "></div>
-    <span>Occupied</span>
-  </div>
-  <div className="flex items-center gap-2">
-    <div className="w-4 h-4 bg-black border-2 border-gray-800 "></div>
-    <span>Not Available</span>
-  </div>
-</div>
+            <div className="flex justify-center gap-6 mb-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-100 border-2 border-green-400 "></div>
+                <span>Available</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-500 border-2 border-blue-600 "></div>
+                <span>Selected</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-red-200 border-2 border-red-400 "></div>
+                <span>Occupied</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-black border-2 border-gray-800 "></div>
+                <span>Not Available</span>
+              </div>
+            </div>
+
             {/* Seat Map */}
             <div className="p-6 overflow-y-auto bg-gray-100 rounded-lg max-h-96">
               <div className="flex flex-col items-center">
@@ -309,44 +421,10 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
           </div>
         )}
 
-        {/* Booking Summary and Confirmation */}
-        {selectedSeats.length > 0 && (
-          <div className="p-4 mb-6 rounded-lg bg-blue-50">
-            <h3 className="mb-2 text-lg font-semibold text-blue-800">Booking Summary</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                 <p><strong>Username:</strong> {tableHeader || 'Default'} <strong>Room:</strong> {selectedAirplane.name}</p>
-                <p><strong>Selected Seats:</strong> {selectedSeats.join(', ')}</p>
-                <p><strong>Date In:</strong> <input type="datetime-local" id="birthdaytime" name="birthdaytime" /></p>
-                 <p><strong>Date out:</strong> <input type="datetime-local" id="deathtime" name="deathtime" /></p>
-              </div>
-              <div>
-               {/*} <p><strong>Price per seat:</strong> ${selectedAirplane.price}</p>
-                <p><strong>Total:</strong> ${selectedAirplane.price * selectedSeats.length}</p>
-              */}</div>
-            </div>
-            <button
-              onClick={handleBooking}
-            
-              className={`mt-4 px-6 py-2 rounded-lg font-medium transition-colors duration-200 
-                  bg-blue-600 text-white hover:bg-blue-700`}
-            >
-            {/*  {selectedSeats.length === passengerCount ? 'Confirm Booking' : `Select ${passengerCount - selectedSeats.length} more seat(s)`} */}
-             {/* disabled={selectedSeats.length !== passengerCount} */}
-            {'Confirm Booking' }
-            </button>
-            <Booking roomTab={selectedAirplane.id} seatTab={selectedSeats} ></Booking>
-          </div>
-          
-        )}
-      
-
-       
-
+        {/* Booking Table */}
+        {selectedSeats.length > 0 && <BookingTable />}
       </div>
     </div>
-
-    
   );
 };
 
