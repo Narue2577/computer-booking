@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useActionState } from 'react';
 import { Check, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
+import { saveReservToDatabase } from '../carousel/reservation'
 interface AirplaneSeatBookingProps {
   tableHeader?: string;
 }
@@ -248,12 +248,12 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
               <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                 Seat ID
               </th>
-              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+        {/*   <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                 Row
               </th>
               <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                 Position
-              </th>
+              </th> */}  
               <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                 Date In
               </th>
@@ -283,12 +283,12 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                       {seatId}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
+                  {/*<td className="px-4 py-3 text-sm text-gray-900">
                     Row {row}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     Position {position}
-                  </td>
+                  </td>*/}
                   <td className="px-4 py-3 text-sm text-gray-900">
                     <input 
                       type="datetime-local" 
@@ -343,6 +343,16 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     </div>
   );
 
+  export default function Reservation() {
+    const initialState = {
+      success: false,
+      message: "",
+    };
+  
+    const [state, formAction, pending] = useActionState(
+      saveReservToDatabase,
+      initialState
+    );
   return (
     <div className="max-w-6xl min-h-screen p-6 mx-auto bg-gray-50">
       <div className="p-6 bg-white rounded-lg shadow-lg">
