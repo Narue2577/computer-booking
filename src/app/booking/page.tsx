@@ -41,6 +41,24 @@ export default function Booking({ usernameTab, roomTab, seatTab }: TableProps) {
         setRows([...rows, newRow]);
     };
 
+    const handleSubmit = async () => {
+        try {
+            const response = await fetch('/api/reservations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(rows),
+            });
+
+            if (response.ok) {
+                alert('Reservation submitted successfully!');
+            } else {
+                throw new Error('Failed to submit reservation.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('An error occurred while submitting the reservation.');
+        }
+    };
     return (
           <>
             <div><CountCartItem /></div>
@@ -72,76 +90,10 @@ export default function Booking({ usernameTab, roomTab, seatTab }: TableProps) {
                 <div className='flex flex-row'>
                {/* <Button onClick={addRow} className='bg-green-500'>Add Row</Button> */}
                 <Button className='bg-blue-400'>Back</Button>
-                <Button className='bg-red-500'>Submit</Button>
+                <Button className='bg-red-500' onClick={handleSubmit}>Submit</Button>
                 </div>
             </div>
         </>
     ); 
 };
 
-{/*import React, { useState } from 'react';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Button } from './your-component-library'; // Adjust imports based on your UI library
-
-const MyTableComponent = () => {
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            username: 'Eatery',
-            room: 'Room801',
-            seat: '4C',
-            dateIn: '2025-07-30 17:10:37',
-            dateOut: '2025-07-31 17:10:37'
-        }
-    ]);
-
-    const addRow = () => {
-        const newRow = {
-            id: rows.length + 1, // Auto-increment ID
-            username: '',
-            room: '',
-            seat: '',
-            dateIn: '',
-            dateOut: ''
-        };
-        setRows([...rows, newRow]);
-    };
-
-    return (
-        <>
-            <div><CountCartItem /></div>
-            <div>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>ID</TableHead>
-                            <TableHead>Username</TableHead>
-                            <TableHead>Room</TableHead>
-                            <TableHead>Seat</TableHead>
-                            <TableHead>Date-In</TableHead>
-                            <TableHead>Date-Out</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {rows.map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{row.id}</TableCell>
-                                <TableCell>{row.username}</TableCell>
-                                <TableCell>{row.room}</TableCell>
-                                <TableCell>{row.seat}</TableCell>
-                                <TableCell>{row.dateIn}</TableCell>
-                                <TableCell>{row.dateOut}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <div className='flex flex-row'>
-                    <Button onClick={addRow} className='bg-green-500'>Add Row</Button> {/* Button to add rows
-                </div>
-                <Button className='bg-blue-400'>Back</Button>
-                <Button className='bg-red-500'>Submit</Button>
-            </div>
-        </>
-    );
-};
-
-export default MyTableComponent; */}

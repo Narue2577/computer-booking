@@ -101,3 +101,90 @@ Make sure the `stud_reserv` table in your database has columns for all the field
 4. Ensure the database schema matches the data being inserted.
 
 With these changes, the client-side component will correctly send reservation data to the server-side function for processing and storage in the database.
+
+ข้อผิดพลาด `Module not found: Can't resolve '@/lib/reservation'` เกิดขึ้นเนื่องจากระบบไม่สามารถหาไฟล์หรือ module ที่คุณพยายาม import ได้ โดยเฉพาะเมื่อใช้ alias (`@/`) ซึ่งมักจะถูกกำหนดให้เป็น path ของโปรเจคต์ (เช่น `./src/lib/reservation`)
+
+---
+
+### **วิธีแก้ไข**
+
+#### 1. **ตรวจสอบโครงสร้างโฟลเดอร์และไฟล์**
+   - เปิดโปรเจคต์ของคุณ และตรวจสอบว่าไฟล์ `reservation.js` หรือ `reservation.ts` มีอยู่ในโฟลเดอร์ `src/lib/` หรือไม่
+   - หากไม่มี ให้ย้ายหรือสร้างไฟล์นั้นในตำแหน่งที่ถูกต้อง
+
+โครงสร้างตัวอย่าง:
+```
+/src
+  /lib
+    reservation.js (หรือ reservation.ts)
+```
+
+---
+
+#### 2. **ตรวจสอบ alias (`@`)**
+   - ใน Next.js, alias `@` มักจะถูกกำหนดให้เป็น `./src/` โดยอัตโนมัติ หากคุณใช้โครงสร้างมาตรฐาน
+   - หากคุณไม่แน่ใจ ให้ตรวจสอบไฟล์ `tsconfig.json` หรือ `jsconfig.json` (ถ้ามี) เพื่อดูว่า alias ถูกตั้งค่าอย่างไร
+
+ตัวอย่างใน `tsconfig.json`:
+```json
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+---
+
+#### 3. **แก้ไขการ import**
+   - หากโครงสร้างถูกต้องแล้ว ให้ตรวจสอบว่าไฟล์ `reservation.js` มีฟังก์ชัน `saveReservToDatabase` และมีการ export ที่ถูกต้อง
+
+ตัวอย่างใน `src/lib/reservation.js`:
+```javascript
+export const saveReservToDatabase = async (_, formData) => {
+    // เนื้อหาของฟังก์ชัน
+};
+```
+
+---
+
+#### 4. **หากยังไม่พบไฟล์**
+   - หากคุณไม่มีไฟล์ `reservation.js` ใน `src/lib/`, ให้สร้างไฟล์ใหม่และเพิ่มโค้ดต่อไปนี้:
+
+```javascript
+// src/lib/reservation.js
+
+import pool from '@/lib/db'; // เชื่อมต่อกับฐานข้อมูล
+
+export const saveReservToDatabase = async (_, formData) => {
+    try {
+        const rawData = {
+            username: formData.get("username"),
+            room: formData.get("room"),
+            seat: formData.get("seat") || null,
+            date_in: new Date(formData.get("date_in")).toISOString().slice(0, 19).replace('T', ' '),
+            date_out: new Date(formData.get("date_out")).toISOString().slice(0, 19).replace('T', ' ')
+        };
+
+        await pool.execute(
+            'INSERT INTO stud_reserv (username, room, seat, date_in, date_out, status, created_at) VALUES (?, ?, ?, ?, ?, "Reserved", NOW())',
+            [rawData.username, rawData.room, rawData.seat, rawData.date_in, rawData.date_out]
+        );
+
+        return { message: "Reservation Complete.", success: true };
+    } catch (error) {
+        console.error("Error saving reservation:", error);
+        return { message: "An error occurred while processing your request." };
+    }
+};
+```
+
+---
+
+#### 5. **ทดสอบอีกครั้ง**
+   - รันโปรเจคต์ใหม่ (`npm run dev` หรือ `yarn dev`) และตรวจสอบว่าไม่มีข้อผิดพลาดเกิดขึ้น
+
+หากคุณยังพบปัญหา โปรดแจ้งรายละเอียดเพิ่มเติมหรือแสดงโครงสร้างโฟลเดอร์ของคุณเพื่อให้ช่วยเหลือได้มากขึ้นครับ!

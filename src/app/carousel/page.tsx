@@ -1,9 +1,10 @@
 "use client"
 
 import React, { useState, useEffect, useActionState } from 'react';
-import { Check, X, Trash2 } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { saveReservToDatabase } from '../carousel/reservation'
+
+
 interface AirplaneSeatBookingProps {
   tableHeader?: string;
 }
@@ -153,22 +154,56 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
   };
 
   // Handle booking confirmation
-  const handleBooking = () => {
+ 
+ //   const handleBooking = () => {
+ //     if (selectedSeats.length === 0) return;
+
+ //    const newBookings = { ...bookings };
+ //    if (!newBookings[selectedAirplane.id]) {
+ //       newBookings[selectedAirplane.id] = [];
+ //     }
+ //     newBookings[selectedAirplane.id] = [...newBookings[selectedAirplane.id], ...selectedSeats];
+ //     
+ //     setBookings(newBookings);
+ //     setSelectedSeats([]);
+ //     setDateTimeInputs({});
+ //     setShowBookingForm(false);
+ //     alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
+ //   }; 
+const handleBooking = async () => {
     if (selectedSeats.length === 0) return;
 
-    const newBookings = { ...bookings };
-    if (!newBookings[selectedAirplane.id]) {
-      newBookings[selectedAirplane.id] = [];
-    }
-    newBookings[selectedAirplane.id] = [...newBookings[selectedAirplane.id], ...selectedSeats];
-    
-    setBookings(newBookings);
-    setSelectedSeats([]);
-    setDateTimeInputs({});
-    setShowBookingForm(false);
-    alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
-  };
+    const formData = new FormData();
+    formData.append('username', tableHeader);
+    formData.append('room', selectedAirplane.id);
 
+    // ส่งข้อมูลสำหรับแต่ละที่นั่งที่เลือก
+    selectedSeats.forEach((seatId, index) => {
+        formData.append(`seats[${index}][seat]`, seatId);
+        formData.append(`seats[${index}][date_in]`, dateTimeInputs[seatId].dateIn);
+        formData.append(`seats[${index}][date_out]`, dateTimeInputs[seatId].dateOut);
+    });
+
+    try {
+        const response = await fetch('/api/reservations', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
+            setSelectedSeats([]);
+            setDateTimeInputs({});
+            setShowBookingForm(false);
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to book seats');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while booking the seats.');
+    }
+};
   // Reset selections when airplane changes
   useEffect(() => {
     setSelectedSeats([]);
@@ -316,7 +351,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                       className="text-red-600 transition-colors duration-200 hover:text-red-800"
                       title="Remove seat"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      Remove
                     </button>
                   </td>
                 </tr>
@@ -343,7 +378,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     </div>
   );
 
-  export default function Reservation() {
+{/* export default function Reservation() {
     const initialState = {
       success: false,
       message: "",
@@ -352,7 +387,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     const [state, formAction, pending] = useActionState(
       saveReservToDatabase,
       initialState
-    );
+    ); */} 
   return (
     <div className="max-w-6xl min-h-screen p-6 mx-auto bg-gray-50">
       <div className="p-6 bg-white rounded-lg shadow-lg">
@@ -439,3 +474,4 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
 };
 
 export default AirplaneSeatBooking;
+
