@@ -173,21 +173,21 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
 const handleBooking = async () => {
     if (selectedSeats.length === 0) return;
 
-    const formData = new FormData();
-    formData.append('username', tableHeader);
-    formData.append('room', selectedAirplane.id);
-
-    // ส่งข้อมูลสำหรับแต่ละที่นั่งที่เลือก
-    selectedSeats.forEach((seatId, index) => {
-        formData.append(`seats[${index}][seat]`, seatId);
-        formData.append(`seats[${index}][date_in]`, dateTimeInputs[seatId].dateIn);
-        formData.append(`seats[${index}][date_out]`, dateTimeInputs[seatId].dateOut);
-    });
+    const payload = {
+        username: tableHeader,
+        room: selectedAirplane.id,
+        seats: selectedSeats.map(seatId => ({
+            seat: seatId,
+            date_in: dateTimeInputs[seatId].dateIn,
+            date_out: dateTimeInputs[seatId].dateOut,
+        })),
+    };
 
     try {
         const response = await fetch('/api/reservations', {
             method: 'POST',
-            body: formData
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
         });
 
         if (response.ok) {
