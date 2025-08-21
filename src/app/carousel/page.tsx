@@ -16,7 +16,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookings, setBookings] = useState({});
   const [dateTimeInputs, setDateTimeInputs] = useState({});
-
+  
   // Sample airplane data with different configurations
   const airplanes = [
     {
@@ -227,6 +227,7 @@ const handleBooking = async () => {
     }
 
     return (
+      
       <div
         key={seat.id}
         className={seatClasses}
@@ -475,3 +476,29 @@ const handleBooking = async () => {
 
 export default AirplaneSeatBooking;
 
+/* try {
+    const [users] = await pool.execute(
+      'SELECT id, full_name, email, password FROM tasks WHERE email = ?',
+      [rawData.email]
+    );
+
+    if (users.length === 0) {
+      return { message: "Invalid email or password.", success: false };
+    }
+
+    const user = users[0];
+    const passwordMatch = await bcrypt.compare(rawData.password, user.password);
+
+    if (!passwordMatch) {
+      return { message: "Invalid email or password.", success: false };
+    }
+
+   
+    // Here you would typically set up session/JWT
+    // For now, just redirect to dashboard
+    
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    return { message: "Login failed. Please try again.", success: false };
+  } */
