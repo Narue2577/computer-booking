@@ -1,37 +1,57 @@
+// /api/reservations/route.ts
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db'; // Adjust the path to your database connection
+import mysql from 'mysql2/promise';
 
-export async function POST(req: Request) {
-    try {
-        const body = await req.json();
-        const { username, room, seats } = body;
+export async function POST(request: Request) {
+  try {
+    const { username, room, seats } = await request.json();
 
-        if (!username || !room || !seats?.length) {
-            return NextResponse.json(
-                { message: "Please fill all the required fields." },
-                { status: 400 }
-            );
-        }
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME
+    });
 
-        for (const seat of seats) {
-            const dateIn2 = new Date(seat.date_in).toISOString().slice(0, 19).replace('T', ' ');
-            const dateOut2 = new Date(seat.date_out).toISOString().slice(0, 19).replace('T', ' ');
-
-            await pool.execute(
-                'INSERT INTO stud_reserv (username, room, seat, date_in, date_out, status, created_at) VALUES (?, ?, ?, ?, ?, "Reserved", NOW())',
-                [username, room, seat.seat, dateIn2, dateOut2]
-            );
-        }
-
-        return NextResponse.json(
-            { message: "Reservation Complete.", success: true },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Error saving reservation:", error);
-        return NextResponse.json(
-            { message: "An error occurred while processing your request." },
-            { status: 500 }
-        );
+    // Check if any seats are already occupied
+    const seatIds = seats.map((s: any) => s.seat);
+    const checkQuery = `
+      SELECT seat FROM nodelogin.stud_reserv 
+      WHERE room = ? AND seat IN (${seatIds.map(() => '?').join(',')}) AND status = 'occupied'
+    `;
+    
+    const [existingSeats] = await connection.execute(checkQuery, [room, ...seatIds]);
+    
+    if ((existingSeats as any[]).length > 0) {
+      connection.end();
+      return NextResponse.json({ 
+        error: 'Some seats are already occupied',
+        occupiedSeats: (existingSeats as any[]).map(row => row.seat)
+      }, { status: 400 });
     }
+
+    // Insert new reservations
+    const insertQuery = `
+      INSERT INTO nodelogin.stud_reserv 
+      (username, room, seat, date_in, date_out, status, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, NOW())
+    `;
+
+    for (const seat of seats) {
+      await connection.execute(insertQuery, [
+        username,
+        room,
+        seat.seat,
+        seat.date_in,
+        seat.date_out,
+        seat.status || 'occupied'
+      ]);
+    }
+
+    connection.end();
+    return NextResponse.json({ message: 'Reservations created successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  }
 }
