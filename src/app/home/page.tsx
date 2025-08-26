@@ -27,7 +27,7 @@ export default function Home2() {
                 <div className="bg-white shadow">
                     <Navbar profile={session.user?.username}></Navbar>
                 </div>
-                <div>{`${year}-${month}-${day} ${hours}:${minutes}:${sec}`}</div>
+               
                 {/* Form is handled internally by  AirplaneSeatBooking */}
                 <AirplaneSeatBooking tableHeader={session.user?.username} />
 
