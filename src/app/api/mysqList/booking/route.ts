@@ -12,7 +12,7 @@ export async function GET() {
     });
 
     // Get all reservations with their current status
-    const query = 'SELECT seat, room, status, date_out FROM nodelogin.stud_reserv ORDER BY room, seat';
+    const query = 'SELECT * FROM nodelogin.stud_reserv ORDER BY room, seat';
     const [results] = await connection.execute(query);
 
     connection.end();

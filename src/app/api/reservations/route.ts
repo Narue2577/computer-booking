@@ -1,4 +1,3 @@
-// /api/reservations/route.ts
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
@@ -30,11 +29,11 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Insert new reservations
+    // Insert new reservations - Fixed to include peroid_time
     const insertQuery = `
       INSERT INTO nodelogin.stud_reserv 
-      (username, room, seat, date_in, date_out, status, created_at) 
-      VALUES (?, ?, ?, ?, ?, ?, NOW())
+      (username, room, seat, date_in, date_out, peroid_time, status, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
     `;
 
     for (const seat of seats) {
@@ -44,6 +43,7 @@ export async function POST(request: Request) {
         seat.seat,
         seat.date_in,
         seat.date_out,
+        seat.peroid_time || '9:00-12:00', // Default period time if not provided
         seat.status || 'occupied'
       ]);
     }
