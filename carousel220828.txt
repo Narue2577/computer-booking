@@ -1,9 +1,9 @@
+//carousel/page.tsx
 "use client"
 
 import React, { useState, useEffect, useActionState } from 'react';
 import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 
 interface AirplaneSeatBookingProps {
   tableHeader?: string;
@@ -26,7 +26,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
       rows: 7,
       seatsPerRow: 8,
       unused: ['4E','5E'],
-      occupied: [],
+      occupied: ['1A'],
       layout: [
         { section: 'Room 601', rows: 7, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -142,7 +142,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     });
   };
 
-  // Handle datetime input changes
+  // Handle datetime input changes - Fixed to include peroid_time
   const handleDateTimeChange = (seatId, field, value) => {
     setDateTimeInputs(prev => ({
       ...prev,
@@ -153,57 +153,54 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     }));
   };
 
-  // Handle booking confirmation
- 
- //   const handleBooking = () => {
- //     if (selectedSeats.length === 0) return;
-
- //    const newBookings = { ...bookings };
- //    if (!newBookings[selectedAirplane.id]) {
- //       newBookings[selectedAirplane.id] = [];
- //     }
- //     newBookings[selectedAirplane.id] = [...newBookings[selectedAirplane.id], ...selectedSeats];
- //     
- //     setBookings(newBookings);
- //     setSelectedSeats([]);
- //     setDateTimeInputs({});
- //     setShowBookingForm(false);
- //     alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
- //   }; 
-const handleBooking = async () => {
+  // Handle booking confirmation - Fixed payload structure
+  const handleBooking = async () => {
     if (selectedSeats.length === 0) return;
 
+    // Validate that all required fields are filled
+    const missingData = selectedSeats.some(seatId => {
+      const seatData = dateTimeInputs[seatId];
+      return !seatData?.dateIn || !seatData?.dateOut || !seatData?.peroidTime;
+    });
+
+    if (missingData) {
+      alert('Please fill in all date and time period fields for all selected seats.');
+      return;
+    }
+
     const payload = {
-        username: tableHeader,
-        room: selectedAirplane.id,
-        seats: selectedSeats.map(seatId => ({
-            seat: seatId,
-            date_in: dateTimeInputs[seatId].dateIn,
-            date_out: dateTimeInputs[seatId].dateOut,
-        })),
+      username: tableHeader,
+      room: selectedAirplane.id,
+      seats: selectedSeats.map(seatId => ({
+        seat: seatId,
+        date_in: dateTimeInputs[seatId].dateIn,
+        date_out: dateTimeInputs[seatId].dateOut,
+        peroid_time: dateTimeInputs[seatId].peroidTime, // Fixed to match database field name
+      })),
     };
 
     try {
-        const response = await fetch('/api/reservations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
+      const response = await fetch('/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-        if (response.ok) {
-            alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
-            setSelectedSeats([]);
-            setDateTimeInputs({});
-            setShowBookingForm(false);
-        } else {
-            const error = await response.json();
-            alert(error.message || 'Failed to book seats');
-        }
+      if (response.ok) {
+        alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
+        setSelectedSeats([]);
+        setDateTimeInputs({});
+        setShowBookingForm(false);
+      } else {
+        const error = await response.json();
+        alert(error.message || 'Failed to book seats');
+      }
     } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while booking the seats.');
+      console.error('Error:', error);
+      alert('An error occurred while booking the seats.');
     }
-};
+  };
+
   // Reset selections when airplane changes
   useEffect(() => {
     setSelectedSeats([]);
@@ -227,7 +224,6 @@ const handleBooking = async () => {
     }
 
     return (
-      
       <div
         key={seat.id}
         className={seatClasses}
@@ -266,8 +262,9 @@ const handleBooking = async () => {
     );
   };
 
-  // BookingTable component (embedded)
+  // BookingTable component - Fixed to properly handle peroid_time
   const BookingTable = () => (
+    
     <div className="p-6 mb-6 rounded-lg bg-blue-50">
       <h3 className="mb-4 text-lg font-semibold text-blue-800">Booking Summary</h3>
       
@@ -284,17 +281,14 @@ const handleBooking = async () => {
               <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                 Seat ID
               </th>
-        {/*   <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
-                Row
-              </th>
-              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
-                Position
-              </th> */}  
               <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                 Date In
-              </th>
+              </th>  
               <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                 Date Out
+              </th>
+              <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
+                Period Time
               </th>
               <th className="px-4 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase border-b">
                 Status
@@ -319,31 +313,40 @@ const handleBooking = async () => {
                       {seatId}
                     </div>
                   </td>
-                  {/*<td className="px-4 py-3 text-sm text-gray-900">
-                    Row {row}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
-                    Position {position}
-                  </td>*/}
                   <td className="px-4 py-3 text-sm text-gray-900">
                     <input 
-                      type="datetime-local" 
+                      type="date" 
                       className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                       value={dateTimeInputs[seatId]?.dateIn || ''}
-                      onChange={(e) => handleDateTimeChange(seatId, 'dateIn', e.target.value)}  required
-                    />
+                      onChange={(e) => handleDateTimeChange(seatId, 'dateIn', e.target.value)}
+                      required
+                    /> 
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     <input 
-                      type="datetime-local" 
+                      type="date" 
                       className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                       value={dateTimeInputs[seatId]?.dateOut || ''}
-                      onChange={(e) => handleDateTimeChange(seatId, 'dateOut', e.target.value)} required
+                      onChange={(e) => handleDateTimeChange(seatId, 'dateOut', e.target.value)}
+                      required
                     />
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    <select 
+                      className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={dateTimeInputs[seatId]?.peroidTime || 'choose your time'}
+                      onChange={(e) => handleDateTimeChange(seatId, 'peroidTime', e.target.value)}
+                      required
+                    >
+                      <option value="choose">Choose your time</option>
+                      <option value="9:00-12:00">9:00 - 12:00</option>
+                      <option value="13:00-16:00">13:00 - 16:00</option>
+                      <option value="9:00-16:00">9:00 - 16:00</option>
+                    </select>
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span className="inline-flex px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
-                      Reserved
+                      Occupied
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
@@ -379,16 +382,6 @@ const handleBooking = async () => {
     </div>
   );
 
-{/* export default function Reservation() {
-    const initialState = {
-      success: false,
-      message: "",
-    };
-  
-    const [state, formAction, pending] = useActionState(
-      saveReservToDatabase,
-      initialState
-    ); */} 
   return (
     <div className="max-w-6xl min-h-screen p-6 mx-auto bg-gray-50">
       <div className="p-6 bg-white rounded-lg shadow-lg">
@@ -475,22 +468,3 @@ const handleBooking = async () => {
 };
 
 export default AirplaneSeatBooking;
-
-/* try {
-    const [users] = await pool.execute(
-      'SELECT id, username, room, seat, date_in, date_out, status FROM tasks WHERE room = ? && seat = ?',
-      [rawData.room],[rawData.seat]
-    );
-
-    if (users.length === 0) {
-      return { message: "Invalid email or password.", success: false };
-    }
-
-    const user = users[0];
-    const passwordMatch = await bcrypt.compare(rawData.password, user.password);
-
-    
-  } catch (error) {
-    console.error('Login error:', error);
-    return { message: "Login failed. Please try again.", success: false };
-  } */

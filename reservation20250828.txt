@@ -2,32 +2,6 @@
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
-// GET method to fetch all reservations
-export async function GET(request: Request) {
-  try {
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME
-    });
-
-    const selectQuery = `
-      SELECT room, seat, status FROM nodelogin.stud_reserv 
-      WHERE status = 'occupied'
-    `;
-
-    const [reservations] = await connection.execute(selectQuery);
-    connection.end();
-
-    return NextResponse.json({ reservations });
-  } catch (err) {
-    console.error('Database error:', err);
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
-  }
-}
-
-// POST method (your existing code)
 export async function POST(request: Request) {
   try {
     const { username, room, seats } = await request.json();
@@ -45,12 +19,12 @@ export async function POST(request: Request) {
       SELECT seat FROM nodelogin.stud_reserv 
       WHERE room = ? AND seat IN (${seatIds.map(() => '?').join(',')}) AND status = 'occupied'
     `;
-
+    
     const [existingSeats] = await connection.execute(checkQuery, [room, ...seatIds]);
-
+    
     if ((existingSeats as any[]).length > 0) {
       connection.end();
-      return NextResponse.json({
+      return NextResponse.json({ 
         error: 'Some seats are already occupied',
         occupiedSeats: (existingSeats as any[]).map(row => row.seat)
       }, { status: 400 });

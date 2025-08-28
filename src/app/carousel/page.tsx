@@ -25,7 +25,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
       rows: 7,
       seatsPerRow: 8,
       unused: ['4E','5E'],
-      occupied: [],
+      occupied: ['1A'],
       layout: [
         { section: 'Room 601', rows: 7, seatsPerRow: 8, seatWidth: 'A B C D   E F G H' }
       ]
@@ -80,6 +80,36 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     }
   ];
 
+  // NEW: Fetch reservations from database
+  const fetchReservations = async () => {
+    try {
+      const response = await fetch('/api/reservations', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Group reservations by room
+        const reservationsByRoom = {};
+        data.reservations?.forEach(reservation => {
+          if (!reservationsByRoom[reservation.room]) {
+            reservationsByRoom[reservation.room] = [];
+          }
+          reservationsByRoom[reservation.room].push(reservation.seat);
+        });
+        setBookings(reservationsByRoom);
+      }
+    } catch (error) {
+      console.error('Error fetching reservations:', error);
+    }
+  };
+
+  // NEW: Load reservations when component mounts
+  useEffect(() => {
+    fetchReservations();
+  }, []);
+
   // Generate seat map for an airplane
   const generateSeatMap = (airplane) => {
     const seatMap = [];
@@ -96,7 +126,8 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
             id: seatId,
             row: currentRow,
             letter: letter,
-            occupied: bookings[airplane.id]?.includes(seatId),
+            // UPDATED: Check database bookings instead of hardcoded occupied array
+            occupied: bookings[airplane.id]?.includes(seatId) || false,
             unused: airplane.unused.includes(seatId),
             selected: selectedSeats.includes(seatId), 
           });
@@ -174,7 +205,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         seat: seatId,
         date_in: dateTimeInputs[seatId].dateIn,
         date_out: dateTimeInputs[seatId].dateOut,
-        peroid_time: dateTimeInputs[seatId].peroidTime, // Fixed to match database field name
+        peroid_time: dateTimeInputs[seatId].peroidTime,
       })),
     };
 
@@ -190,6 +221,8 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         setSelectedSeats([]);
         setDateTimeInputs({});
         setShowBookingForm(false);
+        // NEW: Refresh reservations after successful booking
+        await fetchReservations();
       } else {
         const error = await response.json();
         alert(error.message || 'Failed to book seats');
@@ -215,7 +248,8 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     if (seat.unused) {
       seatClasses += " bg-black border-gray-800 text-white cursor-not-allowed";
     } else if (seat.occupied) {
-      seatClasses += " bg-red-200 border-red-400 text-red-800 cursor-not-allowed";
+      // HIGHLIGHTED CHANGE: Red styling for occupied seats from database
+      seatClasses += " bg-red-500 border-red-600 text-white cursor-not-allowed";
     } else if (seat.selected) {
       seatClasses += " bg-blue-500 border-blue-600 text-white transform scale-110";
     } else {
@@ -229,7 +263,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         onClick={() => handleSeatClick(seat.id, seat.occupied, seat.unused)}
         title={`Seat ${seat.id} - ${seat.section} ${seat.unused ? '(Not Available)' : seat.occupied ? '(Occupied)' : '(Available)'}`}
       >
-        {seat.unused ? 'X' : seat.occupied ? <X className="w-3 h-3 text-red-800" /> : seat.selected ? <Check className="w-3 h-3 text-white" /> : seat.letter}
+        {seat.unused ? 'X' : seat.occupied ? <X className="w-3 h-3 text-white" /> : seat.selected ? <Check className="w-3 h-3 text-white" /> : seat.letter}
       </div>
     );
   };
@@ -345,7 +379,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span className="inline-flex px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
-                      Occupied
+                      Selected
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
@@ -441,7 +475,8 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                 <span>Selected</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-red-200 border-2 border-red-400 "></div>
+                {/* HIGHLIGHTED CHANGE: Updated legend color for occupied seats */}
+                <div className="w-4 h-4 bg-red-500 border-2 border-red-600 "></div>
                 <span>Occupied</span>
               </div>
               <div className="flex items-center gap-2">

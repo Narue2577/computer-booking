@@ -1,7 +1,7 @@
 'use client';
 
 import AirplaneSeatBooking from "../carousel/page";
-import { useSession, signOut } from "next-auth/react";
+import { useSession} from "next-auth/react";
 import { redirect } from "next/navigation";
 import Navbar from "../navbar/page";
 
