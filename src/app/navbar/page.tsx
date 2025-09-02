@@ -78,7 +78,8 @@ export default function Navbar({ profile }: NavbarProps) {
            <div className="block py-2 bg-white border-t-2 sm:hidden">
              <div className="flex flex-col">
                <a href="/home" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">{profile || 'Username'}</a>
-               <a href="#"  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">About</a>
+               <a href="/about"  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">About</a>
+               <a href="/request"  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Request</a>
                <a href="#" onClick={() => signOut()} className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Logout</a>
      
                {/*<div className="flex items-center justify-between pt-2 border-t-2">

@@ -1,20 +1,20 @@
 "use client"
 
-import React, { useState, useEffect, useActionState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface AirplaneSeatBookingProps {
   tableHeader?: string;
 }
 
-const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
+const AirplaneSeatBooking = ({ tableHeader = "DefaultUser" }: AirplaneSeatBookingProps) => {
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [passengerCount, setPassengerCount] = useState(4);
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookings, setBookings] = useState({});
   const [dateTimeInputs, setDateTimeInputs] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   
   // Sample airplane data with different configurations
   const airplanes = [
@@ -80,9 +80,10 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     }
   ];
 
-  // NEW: Fetch reservations from database
+  // Fetch reservations from database with better error handling
   const fetchReservations = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch('/api/reservations', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
@@ -92,20 +93,31 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         const data = await response.json();
         // Group reservations by room
         const reservationsByRoom = {};
-        data.reservations?.forEach(reservation => {
-          if (!reservationsByRoom[reservation.room]) {
-            reservationsByRoom[reservation.room] = [];
-          }
-          reservationsByRoom[reservation.room].push(reservation.seat);
-        });
+        if (data.reservations && Array.isArray(data.reservations)) {
+          data.reservations.forEach(reservation => {
+            if (reservation.room && reservation.seat) {
+              if (!reservationsByRoom[reservation.room]) {
+                reservationsByRoom[reservation.room] = [];
+              }
+              reservationsByRoom[reservation.room].push(reservation.seat);
+            }
+          });
+        }
         setBookings(reservationsByRoom);
+      } else {
+        console.warn('Failed to fetch reservations:', response.status);
+        // Don't show error to user for failed fetches, just use empty bookings
       }
     } catch (error) {
       console.error('Error fetching reservations:', error);
+      // Fallback to empty bookings if API is not available
+      setBookings({});
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // NEW: Load reservations when component mounts
+  // Load reservations when component mounts
   useEffect(() => {
     fetchReservations();
   }, []);
@@ -126,7 +138,6 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
             id: seatId,
             row: currentRow,
             letter: letter,
-            // UPDATED: Check database bookings instead of hardcoded occupied array
             occupied: bookings[airplane.id]?.includes(seatId) || false,
             unused: airplane.unused.includes(seatId),
             selected: selectedSeats.includes(seatId), 
@@ -172,7 +183,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     });
   };
 
-  // Handle datetime input changes - Fixed to include peroid_time
+  // Handle datetime input changes - Fixed validation
   const handleDateTimeChange = (seatId, field, value) => {
     setDateTimeInputs(prev => ({
       ...prev,
@@ -183,23 +194,58 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     }));
   };
 
-  // Handle booking confirmation - Fixed payload structure
-  const handleBooking = async () => {
-    if (selectedSeats.length === 0) return;
+  // Improved booking validation and error handling
+  const validateBookingData = () => {
+    if (selectedSeats.length === 0) {
+      return { valid: false, message: 'Please select at least one seat.' };
+    }
 
-    // Validate that all required fields are filled
-    const missingData = selectedSeats.some(seatId => {
+    if (!selectedAirplane) {
+      return { valid: false, message: 'Please select a room.' };
+    }
+
+    // Check if all required fields are filled
+    for (const seatId of selectedSeats) {
       const seatData = dateTimeInputs[seatId];
-      return !seatData?.dateIn || !seatData?.dateOut || !seatData?.peroidTime;
-    });
+      
+      if (!seatData) {
+        return { valid: false, message: `Please fill in all fields for seat ${seatId}.` };
+      }
+      
+      if (!seatData.dateIn || !seatData.dateOut || !seatData.peroidTime || seatData.peroidTime === 'choose') {
+        return { valid: false, message: `Please complete all fields for seat ${seatId}.` };
+      }
 
-    if (missingData) {
-      alert('Please fill in all date and time period fields for all selected seats.');
+      // Validate dates
+      const dateIn = new Date(seatData.dateIn);
+      const dateOut = new Date(seatData.dateOut);
+      
+      if (isNaN(dateIn.getTime()) || isNaN(dateOut.getTime())) {
+        return { valid: false, message: `Invalid date format for seat ${seatId}.` };
+      }
+      
+      if (dateOut < dateIn) {
+        return { valid: false, message: `End date must be after start date for seat ${seatId}.` };
+      }
+    }
+
+    return { valid: true };
+  };
+
+  // Enhanced booking handler with better error handling
+  const handleBooking = async () => {
+    const validation = validateBookingData();
+    
+    if (!validation.valid) {
+      alert(validation.message);
       return;
     }
 
+    setIsLoading(true);
+
+    // Create payload with proper structure
     const payload = {
-      username: tableHeader,
+      username: tableHeader || 'DefaultUser',
       room: selectedAirplane.id,
       seats: selectedSeats.map(seatId => ({
         seat: seatId,
@@ -212,24 +258,39 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     try {
       const response = await fetch('/api/reservations', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(payload),
       });
 
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        throw new Error('Invalid response from server');
+      }
+
       if (response.ok) {
-        alert(`Successfully booked ${selectedSeats.length} seat(s) on ${selectedAirplane.name}!`);
+        alert(`Successfully booked ${selectedSeats.length} seat(s) in ${selectedAirplane.name}!`);
         setSelectedSeats([]);
         setDateTimeInputs({});
         setShowBookingForm(false);
-        // NEW: Refresh reservations after successful booking
+        // Refresh reservations after successful booking
         await fetchReservations();
       } else {
-        const error = await response.json();
-        alert(error.message || 'Failed to book seats');
+        // Handle specific error cases
+        const errorMessage = responseData?.message || responseData?.error || 'Failed to book seats';
+        console.error('Booking failed:', response.status, errorMessage);
+        alert(`Booking failed: ${errorMessage}`);
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while booking the seats.');
+      console.error('Network or parsing error:', error);
+      alert(`An error occurred while booking: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -248,7 +309,6 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     if (seat.unused) {
       seatClasses += " bg-black border-gray-800 text-white cursor-not-allowed";
     } else if (seat.occupied) {
-      // HIGHLIGHTED CHANGE: Red styling for occupied seats from database
       seatClasses += " bg-red-500 border-red-600 text-white cursor-not-allowed";
     } else if (seat.selected) {
       seatClasses += " bg-blue-500 border-blue-600 text-white transform scale-110";
@@ -295,15 +355,14 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
     );
   };
 
-  // BookingTable component - Fixed to properly handle peroid_time
+  // Enhanced BookingTable component with better validation feedback
   const BookingTable = () => (
-    
     <div className="p-6 mb-6 rounded-lg bg-blue-50">
       <h3 className="mb-4 text-lg font-semibold text-blue-800">Booking Summary</h3>
       
       <div className="mb-4 text-sm">
-        <p><strong>Username:</strong> {tableHeader || 'Default'}</p>
-        <p><strong>Room:</strong> {selectedAirplane.name}</p>
+        <p><strong>Username:</strong> {tableHeader || 'DefaultUser'}</p>
+        <p><strong>Room:</strong> {selectedAirplane?.name}</p>
         <p><strong>Total Seats:</strong> {selectedSeats.length}</p>
       </div>
 
@@ -333,8 +392,8 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {selectedSeats.map((seatId, index) => {
-              const row = seatId.match(/\d+/)[0];
-              const position = seatId.match(/[A-H]/)[0];
+              const seatData = dateTimeInputs[seatId] || {};
+              const isComplete = seatData.dateIn && seatData.dateOut && seatData.peroidTime && seatData.peroidTime !== 'choose';
               
               return (
                 <tr key={seatId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
@@ -349,8 +408,10 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                   <td className="px-4 py-3 text-sm text-gray-900">
                     <input 
                       type="date" 
-                      className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={dateTimeInputs[seatId]?.dateIn || ''}
+                      className={`px-2 py-1 text-xs border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        !seatData.dateIn ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
+                      value={seatData.dateIn || ''}
                       onChange={(e) => handleDateTimeChange(seatId, 'dateIn', e.target.value)}
                       required
                     /> 
@@ -358,16 +419,20 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                   <td className="px-4 py-3 text-sm text-gray-900">
                     <input 
                       type="date" 
-                      className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={dateTimeInputs[seatId]?.dateOut || ''}
+                      className={`px-2 py-1 text-xs border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        !seatData.dateOut ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
+                      value={seatData.dateOut || ''}
                       onChange={(e) => handleDateTimeChange(seatId, 'dateOut', e.target.value)}
                       required
                     />
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
                     <select 
-                      className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={dateTimeInputs[seatId]?.peroidTime || 'choose your time'}
+                      className={`px-2 py-1 text-xs border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        !seatData.peroidTime || seatData.peroidTime === 'choose' ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
+                      value={seatData.peroidTime || 'choose'}
                       onChange={(e) => handleDateTimeChange(seatId, 'peroidTime', e.target.value)}
                       required
                     >
@@ -378,8 +443,12 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                     </select>
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
-                      Selected
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      isComplete 
+                        ? 'text-green-800 bg-green-100' 
+                        : 'text-yellow-800 bg-yellow-100'
+                    }`}>
+                      {isComplete ? 'Ready' : 'Incomplete'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
@@ -407,9 +476,14 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
       {selectedSeats.length > 0 && (
         <button
           onClick={handleBooking}
-          className="px-6 py-2 mt-4 font-medium text-white transition-colors duration-200 bg-blue-600 rounded-lg hover:bg-blue-700"
+          disabled={isLoading}
+          className={`px-6 py-2 mt-4 font-medium text-white rounded-lg transition-colors duration-200 ${
+            isLoading 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
-          Confirm Booking
+          {isLoading ? 'Booking...' : 'Confirm Booking'}
         </button>
       )}
     </div>
@@ -437,10 +511,12 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
                 onClick={() => setSelectedAirplane(airplane)}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="justify-center text-lg font-bold text-center text-gray-800">{airplane.name}</h3>
+                  <h3 className="text-lg font-bold text-center text-gray-800">{airplane.name}</h3>
                 </div>
-                <p className="justify-center mb-1 text-sm text-center text-gray-600">Capacity: {airplane.capacity} </p>
-                <p className="justify-center mb-1 text-sm text-center text-gray-600">Occupied: {bookings[airplane.id]?.length || 0} </p>
+                <p className="mb-1 text-sm text-center text-gray-600">Capacity: {airplane.capacity}</p>
+                <p className="mb-1 text-sm text-center text-gray-600">
+                  Occupied: {isLoading ? '...' : (bookings[airplane.id]?.length || 0)}
+                </p>
               </div>
             ))}
           </div>
@@ -450,7 +526,7 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
         {selectedAirplane && (
           <div className="mb-6">
             <h2 className="mb-4 text-xl font-semibold text-gray-700">
-              Number of Reservations: <Button>{selectedSeats.length}</Button>
+              Number of Reservations: <span className="px-3 py-1 text-white bg-blue-600 rounded">{selectedSeats.length}</span>
             </h2>
           </div>
         )} 
@@ -467,20 +543,19 @@ const AirplaneSeatBooking = ({ tableHeader }: AirplaneSeatBookingProps) => {
             {/* Legend */}
             <div className="flex justify-center gap-6 mb-6 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-100 border-2 border-green-400 "></div>
+                <div className="w-4 h-4 bg-green-100 border-2 border-green-400"></div>
                 <span>Available</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 border-2 border-blue-600 "></div>
+                <div className="w-4 h-4 bg-blue-500 border-2 border-blue-600"></div>
                 <span>Selected</span>
               </div>
               <div className="flex items-center gap-2">
-                {/* HIGHLIGHTED CHANGE: Updated legend color for occupied seats */}
-                <div className="w-4 h-4 bg-red-500 border-2 border-red-600 "></div>
+                <div className="w-4 h-4 bg-red-500 border-2 border-red-600"></div>
                 <span>Occupied</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-black border-2 border-gray-800 "></div>
+                <div className="w-4 h-4 bg-black border-2 border-gray-800"></div>
                 <span>Not Available</span>
               </div>
             </div>

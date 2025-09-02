@@ -31,7 +31,7 @@ export default function About() {
                 <p>3. Select Room, Number of Seats, Seats</p>
                 <p>4. Booking. Mark your start date and expired date.</p>
                 <p>5. Confirm. Please submit if you complete all.</p>
-                <p>P.S. Do noy forget to log out</p>
+                <p>P.S. Do not forget to log out</p>
                 
             </div>
 
