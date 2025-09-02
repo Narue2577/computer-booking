@@ -25,7 +25,7 @@ export default function Navbar({ profile }: NavbarProps) {
              <div className="hidden sm:flex sm:items-center">
                <a href="/home" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">{profile || 'Username'}</a>
                <a href="/about"  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">About</a>
-               <a href="#"  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Request</a>
+               <a href="/request"  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Request</a>
                <a href="#" onClick={() => signOut()} className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Logout</a>
                {/*<a href="#" className="text-sm font-semibold text-gray-800 hover:text-purple-600">Pricing</a> */}
                {/*<button data-popover-target="popover-user-profile" type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">User profile</button>*/}
@@ -78,7 +78,7 @@ export default function Navbar({ profile }: NavbarProps) {
            <div className="block py-2 bg-white border-t-2 sm:hidden">
              <div className="flex flex-col">
                <a href="/home" className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">{profile || 'Username'}</a>
-               <a href="/about"  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">About</a>
+               <a href=""  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">About</a>
                <a href="/request"  className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Request</a>
                <a href="#" onClick={() => signOut()} className="mr-4 text-sm font-semibold text-gray-800 hover:text-purple-600">Logout</a>
      

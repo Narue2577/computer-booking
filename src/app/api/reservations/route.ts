@@ -2,7 +2,23 @@
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
-// GET method to fetch all reservations
+// Helper function to check and update expired reservations
+async function updateExpiredReservations(connection: any) {
+  const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  
+  // Query to find reservations that are past their end date/time
+  const query = `
+    UPDATE nodelogin.stud_reserv 
+    SET status = 'complete' 
+    WHERE (status = 'occupied') AND (
+      CONCAT(date_out, ' ', SUBSTRING_INDEX(peroid_time, '-', -1)) < ?
+    )
+  `;
+
+  await connection.execute(query, [currentDateTime]);
+}
+
+// GET method with auto-update for expired reservations
 export async function GET(request: Request) {
   try {
     const connection = await mysql.createConnection({
@@ -12,6 +28,10 @@ export async function GET(request: Request) {
       database: process.env.DB_NAME
     });
 
+    // First, update any expired reservations
+    await updateExpiredReservations(connection);
+
+    // Then fetch all active (occupied) reservations
     const selectQuery = `
       SELECT room, seat, status FROM nodelogin.stud_reserv 
       WHERE status = 'occupied'
@@ -27,17 +47,20 @@ export async function GET(request: Request) {
   }
 }
 
-// POST method (your existing code)
+// POST method with auto-update for expired reservations
 export async function POST(request: Request) {
   try {
-    const { username, room, seats } = await request.json();
-
     const connection = await mysql.createConnection({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME
     });
+
+    // First, update any expired reservations
+    await updateExpiredReservations(connection);
+
+    const { username, room, seats } = await request.json();
 
     // Check if any seats are already occupied
     const seatIds = seats.map((s: any) => s.seat);
@@ -56,7 +79,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Insert new reservations - Fixed to include peroid_time
+    // Insert new reservations
     const insertQuery = `
       INSERT INTO nodelogin.stud_reserv 
       (username, room, seat, date_in, date_out, peroid_time, status, created_at) 
@@ -77,6 +100,64 @@ export async function POST(request: Request) {
 
     connection.end();
     return NextResponse.json({ message: 'Reservations created successfully' });
+  } catch (err) {
+    console.error('Database error:', err);
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  }
+}
+
+// PUT method with auto-update for expired reservations
+export async function PUT(request: Request) {
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME
+    });
+
+    // First, update any expired reservations
+    await updateExpiredReservations(connection);
+
+    const { username, room, seat, date_in, date_out, peroid_time, status } = await request.json();
+
+    if (!username || !room || !seat || !date_in || !date_out || !peroid_time || !status) {
+      connection.end();
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Check if the reservation exists
+    const checkQuery = `
+      SELECT * FROM nodelogin.stud_reserv 
+      WHERE username = ? AND room = ? AND seat = ?
+    `;
+
+    const [existingReservation] = await connection.execute(checkQuery, [username, room, seat]);
+
+    if (!(existingReservation as any[]).length) {
+      connection.end();
+      return NextResponse.json({ error: 'Reservation not found' }, { status: 404 });
+    }
+
+    // Update the reservation
+    const updateQuery = `
+      UPDATE nodelogin.stud_reserv 
+      SET date_in = ?, date_out = ?, peroid_time = ?, status = ?
+      WHERE username = ? AND room = ? AND seat = ?
+    `;
+
+    await connection.execute(updateQuery, [
+      date_in,
+      date_out,
+      peroid_time,
+      status,
+      username,
+      room,
+      seat
+    ]);
+
+    connection.end();
+    return NextResponse.json({ message: 'Reservation updated successfully' });
   } catch (err) {
     console.error('Database error:', err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
