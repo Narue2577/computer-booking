@@ -83,8 +83,8 @@ export async function POST(request: Request) {
     // Insert new reservations
     const insertQuery = `
       INSERT INTO nodelogin.stud_reserv 
-      (username, room, seat, date_in, date_out, peroid_time, status, created_at) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+      (username, room, seat, date_in, date_out, peroid_time, status, created_at, updated_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
 
     for (const seat of seats) {

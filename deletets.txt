@@ -22,7 +22,7 @@ export async function PUT(request: NextRequest) {
       
       const updateQuery = `
         UPDATE nodelogin.stud_reserv 
-        SET status = 'cancelled', updated_at = NOW()
+        SET status = 'cancelled' AND updated_at = NOW()
         WHERE id = ? AND status = 'occupied'
       `;
       
@@ -81,7 +81,7 @@ export async function PUT(request: NextRequest) {
     // Update the most recent reservation for this user/room/seat combination
     const updateQuery = `
       UPDATE nodelogin.stud_reserv 
-      SET status = 'cancelled', updated_at = NOW()
+      SET status = 'cancelled'
       WHERE username = ? AND room = ? AND seat = ? AND status = 'occupied'
       ORDER BY created_at DESC 
       LIMIT 1
