@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
+
 // Helper function to check and update expired reservations
 async function updateExpiredReservations(connection: any) {
   const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');

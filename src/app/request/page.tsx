@@ -1,3 +1,4 @@
+// request/page.tsx 
 "use client";
 
 import { redirect } from "next/navigation";
@@ -6,25 +7,49 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from 'react';
 
 export default function Request() {
-  const [posts, setPosts] = useState([]); // Initialize state for fetched data
+  const [posts, setPosts] = useState([]);
   const { data: session, status } = useSession();
-    // Enhanced booking handler with better error handling
-  const cancelBooking = async (reservationId) => {
+
+  // Enhanced cancelBooking handler with better debugging
+const cancelBooking = async (room, seat) => {
   try {
-    const response = await fetch(`/api/reservations/${reservationId}`, {
-      method: 'DELETE',
+    console.log('Attempting to cancel reservation for:', { username: session.user.username, room, seat });
+    
+    const response = await fetch(`/api/delete`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        username: session.user.username, 
+        room, 
+        seat 
+      }),
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to delete reservation');
-    }
+    const responseData = await response.json();
+    console.log('Server response:', responseData);
 
-    // Remove the deleted reservation from the state
-    setPosts((prevPosts) => prevPosts.filter(post => post.id !== reservationId));
+    if (response.ok) {
+        // Remove the deleted reservation from the UI
+        setPosts((prevPosts) =>
+          prevPosts.filter(
+            post => 
+              post.room !== room || 
+              post.seat !== seat 
+          )
+        );
+      alert('Reservation cancelled successfully!');
+    } else {
+      console.error('Failed to cancel reservation:', responseData);
+      alert(`Failed to cancel reservation: ${responseData.message}`);
+    }
   } catch (error) {
-    console.error('Error deleting reservation:', error);
+    console.error('Error cancelling reservation:', error);
+    alert('Network error occurred while cancelling reservation');
   }
 };
+
   // Fetch data on component mount
   useEffect(() => {
     async function fetchData() {
@@ -32,18 +57,17 @@ export default function Request() {
         if (session?.user?.username) {
           const res = await fetch(`/api/check?username=${session.user.username}`);
           const data = await res.json();
-          
-          // Ensure `data.reservations` is an array before setting it to state
+
           if (Array.isArray(data.reservations)) {
             setPosts(data.reservations);
           } else {
             console.error('Invalid response format:', data);
-            setPosts([]); // Set posts to empty array if the response is invalid
+            setPosts([]);
           }
         }
       } catch (error) {
         console.error('Error fetching data:', error);
-        setPosts([]); // Set posts to empty array in case of an error
+        setPosts([]);
       }
     }
     fetchData();
@@ -61,10 +85,10 @@ export default function Request() {
         <div className="p-4 space-y-4 md:p-5">
           <h1 className="text-3xl font-bold underline">Cancellations</h1>
           <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-            This section allows you cancel your reservation if you are not satisfy your booking. 
-            This table is a list of your reservations if you have confirmed booking before. Please feel free to use this.
+            This section allows you cancel your reservation if you are not satisfied with your booking or the unfortunate event interrupts your booking. 
+            This table is a list of your reservations if you have confirmed bookings before. Please feel free to use this.
           </p>
-          
+
           {/* Render the data in a table */}
           <table className="w-full bg-white border border-gray-300 table-auto">
             <thead className="text-white bg-pink-500">
@@ -89,17 +113,16 @@ export default function Request() {
                     <td className="px-4 py-2 text-center border border-gray-300">{post.peroid_time}</td>
                     <td className="px-4 py-2 text-center border border-gray-300">{post.status}</td>
                     <td className="px-4 py-2 text-center border border-gray-300">
-  <button 
-    className="px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700" 
-    onClick={() => cancelBooking(post.id)} // Assuming `post.id` is the reservation ID
-  >
-    DELETE
-  </button>
-</td>
+                      <button 
+                        className="px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700" 
+                        onClick={() => cancelBooking(post.room, post.seat)} // Pass unique fields
+                      >
+                        CANCEL
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
-                // Display a message if there are no reservations
                 <tr>
                   <td colSpan={7} className="py-4 text-center">
                     No reservations found.
@@ -119,4 +142,3 @@ export default function Request() {
     </div>
   );
 }
-//https://blog.devgenius.io/apis-in-next-js-update-delete-request-6ca90d929cab

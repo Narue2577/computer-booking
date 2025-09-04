@@ -100,3 +100,4 @@ export async function PUT(request: Request) {
     console.error('Database error:', err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
+}
