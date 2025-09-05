@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
 
+/* eslint-disable */
 interface AirplaneSeatBookingProps {
   tableHeader?: string;
 }

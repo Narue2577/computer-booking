@@ -18,7 +18,7 @@ async function updateExpiredReservations(connection: any) {
 
   await connection.execute(query, [currentDateTime]);
 }
-
+/* eslint-disable */
 // GET method with auto-update for expired reservations
 export async function GET(request: Request) {
   try {

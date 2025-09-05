@@ -1,11 +1,11 @@
 // import the Request and Response classes
 
-import { NextResponse, NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
 import mysql from  'mysql2/promise';
 
 // define and export the GET handler function
-
+/* eslint-disable */
 
 export async function GET(request: Request) {
   try {

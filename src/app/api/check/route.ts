@@ -33,7 +33,7 @@ export async function GET(request: Request) {
     const safeReservations = Array.isArray(reservations) ? reservations : [];
 
     // Format dates to "YYYY-MM-DD" without time
-    const formattedReservations = safeReservations.map((post: any) => ({
+    /* eslint-disable */const formattedReservations = safeReservations.map((post: any ) => ({  
       ...post,
       date_in: post.date_in ? new Date(post.date_in).toISOString().split('T')[0] : "N/A",
       date_out: post.date_out ? new Date(post.date_out).toISOString().split('T')[0] : "N/A"

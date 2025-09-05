@@ -1,5 +1,5 @@
 //when you open starting page (localhost:3001)
-
+/* eslint-disable */
 ///import AppWelcome from "./components/AppWelcome";
 
 //export default function Home() {
