@@ -2,7 +2,7 @@
 "use client";
 
 import { redirect } from "next/navigation";
-import Navbar from "../navbar/page";
+import Navbar from "@/components/navbar";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from 'react';
 

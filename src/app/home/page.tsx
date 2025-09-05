@@ -3,7 +3,7 @@
 import AirplaneSeatBooking from "@/components/AirplaneSeatBooking";
 import { useSession} from "next-auth/react";
 import { redirect } from "next/navigation";
-import Navbar from "../navbar/page";
+import Navbar from "@/components/navbar";
 
 export default function Home2() {
     const { data: session, status } = useSession();
