@@ -8,7 +8,7 @@ interface AirplaneSeatBookingProps {
   tableHeader?: string;
 }
 
-const AirplaneSeatBooking = ({ tableHeader = "DefaultUser" }: AirplaneSeatBookingProps) => {
+const AirplaneSeatBooking: React.FC<AirplaneSeatBookingProps> = ({ tableHeader = "DefaultUser" }) => {
   const [selectedAirplane, setSelectedAirplane] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [passengerCount, setPassengerCount] = useState(4);
@@ -577,4 +577,5 @@ const AirplaneSeatBooking = ({ tableHeader = "DefaultUser" }: AirplaneSeatBookin
   );
 };
 
+// This is the key fix for Next.js deployment
 export default AirplaneSeatBooking;
