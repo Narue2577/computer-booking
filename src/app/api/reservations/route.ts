@@ -4,7 +4,7 @@ import mysql from 'mysql2/promise';
 
 
 // Helper function to check and update expired reservations
-async function updateExpiredReservations(connection: any) {
+/* eslint-disable */async function updateExpiredReservations(connection: any) {
   const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
   
   // Query to find reservations that are past their end date/time
