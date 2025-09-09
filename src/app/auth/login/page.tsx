@@ -23,7 +23,7 @@
 
  'use client'
 
-import Image from "next/image";
+import SecretAdmin from "@/components/secretAdmin";
 import Link from "next/link";
 import { useActionState } from "react";
 import { loginUser } from './actione';
@@ -58,12 +58,7 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-lg p-6 bg-white rounded-lg shadow-lg">
         <div className="relative flex flex-col items-center justify-center w-full">
-          <Image
-            src="/swuEng.png"
-            width={150}
-            height={150}
-            alt="SWU Logo"
-          />
+          <SecretAdmin />
         </div>
         <h2 className="mb-6 text-2xl font-semibold text-center">Login</h2>
         
