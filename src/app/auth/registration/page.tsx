@@ -113,7 +113,7 @@ export default function Registration() {
             )}
           </div>
           
-          <Link href="/auth/login" className="grid text-center text-indigo-600 justify-items-center hover:text-indigo-800">
+          <Link href="/auth/policy" className="grid text-center text-indigo-600 justify-items-center hover:text-indigo-800">
             Already have an account? Click to Login
           </Link>
         </form>

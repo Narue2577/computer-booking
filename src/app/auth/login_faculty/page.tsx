@@ -29,7 +29,6 @@ import { useActionState } from "react";
 import { loginUser } from './actione';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
-//import { Button } from "@/components/ui/button";
 
 export default function Login() {
   const initialState = {
@@ -58,14 +57,14 @@ export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-lg p-6 bg-white rounded-lg shadow-lg">
-        <div className="flex mt-6 gap-[230px] space-x-4"> {/* Add spacing between buttons */}
+      <div className="flex mt-6 gap-[230px] space-x-4"> {/* Add spacing between buttons */}
     <Link href="/auth/login" className="px-4 py-2 text-white transition duration-300 bg-red-500 rounded hover:bg-red-200">Student</Link>
     <Link href="/auth/login_faculty" className="px-4 py-2 text-white transition duration-300 bg-gray-500 rounded hover:bg-gray-200">Faculty/Staff</Link>
   </div>
         <div className="relative flex flex-col items-center justify-center w-full">
           <SecretAdmin />
         </div>
-        <h2 className="mb-6 text-2xl font-semibold text-center">Login (Student)</h2>
+        <h2 className="mb-6 text-2xl font-semibold text-center">Login (Faculty)</h2>
         
         <form className="space-y-4" action={formAction} onSubmit={handleSubmit}>
           <div>

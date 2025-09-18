@@ -10,7 +10,7 @@ export default function SecretAdmin() {
 
  return(
     <>
-    <Link href="/auth/admin" className="grid text-center justify-items-center">
+    <Link href="" className="grid text-center justify-items-center">
     <Image
                 src="/swuEng.png"
                 width={150}
