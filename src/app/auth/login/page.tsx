@@ -26,7 +26,7 @@
 import SecretAdmin from "@/components/secretAdmin";
 import Link from "next/link";
 import { useActionState } from "react";
-import { loginUser } from './actione';
+import { loginUser } from './actionl2';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 //import { Button } from "@/components/ui/button";
@@ -38,15 +38,14 @@ export default function Login() {
   };
 
   const [state, formAction, pending] = useActionState(loginUser, initialState);
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [buasri, setBuasri] = useState('')
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     const result = await signIn('credentials', {
-      email,
-      password,
+      buasri,
       redirect: false,
     })
 
@@ -66,6 +65,7 @@ export default function Login() {
           <SecretAdmin />
         </div>
         <h2 className="mb-6 text-2xl font-semibold text-center">Login (Student)</h2>
+        <h2 className="mb-6 text-2xl font-semibold text-center">College of Social Communication Innovation</h2>
         
         <form className="space-y-4" action={formAction} onSubmit={handleSubmit}>
           <div>
@@ -73,12 +73,12 @@ export default function Login() {
               Buasri ID
             </label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={buasri}
+              onChange={(e) => setBuasri(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Enter your email"
-              name="email"
+              placeholder="Buasri ID"
+              name="buasri"
               required
             />
           </div>

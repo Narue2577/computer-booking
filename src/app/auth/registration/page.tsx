@@ -56,8 +56,8 @@ export default function Registration() {
         <div className="relative flex flex-col items-center justify-center w-full">
         <SecretAdmin/>
         </div>
-        <h2 className="mb-6 text-2xl font-semibold text-center">Registration</h2>
-        
+        <h2 className="mb-6 text-2xl font-semibold text-center">Registration </h2>
+         <h2 className="mb-6 text-2xl font-semibold text-center">College of Social Communication Innovation</h2>
         <form className="space-y-4" action={formAction}>
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-600">
@@ -66,7 +66,7 @@ export default function Registration() {
             <input
               type="text"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Enter your name"
+              placeholder="Buasri ID"
               name="fullName"
               required
             />
@@ -96,7 +96,7 @@ export default function Registration() {
               name="password"
               required
             />
-            <Link href="/forget-password" className="grid ml-4 text-left text-red-600 justify-items-start hover:text-red-200">
+            <Link href="/forget-password" className="grid pt-2 ml-4 text-left text-red-600 justify-items-start hover:text-red-300">
             Forget your password?
           </Link>
           </div>

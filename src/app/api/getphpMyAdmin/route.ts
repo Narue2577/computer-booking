@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
     let get_exp_query = ''
 
-    get_exp_query = 'SELECT staff_buasri AS buasri FROM staff UNION SELECT stu_buasri AS buasri FROM student '
+    get_exp_query = 'SELECT buasri FROM (SELECT staff_buasri AS buasri FROM staff UNION SELECT stu_buasri AS buasri FROM student) AS combined WHERE buasri LIKE "co%";'
 
     // we can use this array to pass parameters to the SQL query
 
