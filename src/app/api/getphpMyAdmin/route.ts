@@ -21,8 +21,11 @@ export async function GET(request: Request) {
 
     let get_exp_query = ''
 
-    get_exp_query = 'SELECT buasri FROM (SELECT staff_buasri AS buasri FROM staff UNION SELECT stu_buasri AS buasri FROM student) AS combined WHERE buasri LIKE "co%";'
-
+    get_exp_query = 'SELECT staff_buasri AS buasri FROM staff WHERE staff_buasri !="NULL" AND staff_buasri NOT LIKE "co%" UNION SELECT stu_buasri AS buasri FROM student'
+/*SELECT buasri FROM (SELECT staff_buasri AS buasri FROM staff UNION SELECT stu_buasri AS buasri FROM student) AS combined WHERE buasri LIKE "co%"; */
+/*SELECT staff_buasri AS buasri FROM staff WHERE staff_buasri REGEXP '^co[0-9]+$'
+UNION
+SELECT stu_buasri AS buasri FROM student WHERE stu_buasri REGEXP '^co[0-9]+$'; */
     // we can use this array to pass parameters to the SQL query
 
     let values: any[] = []

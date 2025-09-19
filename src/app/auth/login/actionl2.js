@@ -1,44 +1,43 @@
 "use server";
 
-import pool from '@/lib/db';
-import bcrypt from 'bcryptjs';
-import { redirect } from 'next/navigation';
+import mysql from 'mysql2/promise';
 
-export const loginUser = async (_, formData) => {
-  const rawData = {
-    email: formData.get("email"),
-    password: formData.get("password"),
-  };
+export const loginUser2 = async (_, formData) => {
+    // Extract buasri from form data
+    const rawData = {
+        buasri: formData.get("buasri")
+    };
 
-  if (!rawData.email || !rawData.password) {
-    return { message: "Please fill all fields.", success: false };
-  }
-
-  try {
-    const [users] = await pool.execute(
-      'SELECT id, full_name, email, password FROM tasks WHERE email = ?',
-      [rawData.email]
-    );
-
-    if (users.length === 0) {
-      return { message: "Invalid email or password.", success: false };
+    if (!rawData.buasri) {
+        return { message: "Please enter your BUASRI.", success: false };
     }
 
-    const user = users[0];
-    const passwordMatch = await bcrypt.compare(rawData.password, user.password);
+    try {
+        // 1. Connect to the database
+        const connection = await mysql.createConnection({
+            host: '10.1.140.57',
+            user: 'cosciadministrator',
+            password: 'Cosci!_2021',
+            database: 'cosci_system'
+        });
 
-    if (!passwordMatch) {
-      return { message: "Invalid email or password.", success: false };
+        // 2. Execute query to check if buasri exists
+        const [users] = await connection.execute(
+            'SELECT stu_buasri FROM student WHERE  stu_buasri = ?',
+            [rawData.buasri]
+        );
+
+        // 3. Close the database connection
+        await connection.end();
+
+        if (users.length === 0) {
+            return { message: "Buasri ID must be student only.", success: false };
+        }
+
+        // Return a success flag instead of redirecting directly
+        return { message: "Login successful!", success: true, redirectUrl: '/home' };
+    } catch (error) {
+        console.error('Login error:', error);
+        return { message: "Login failed. Please try again.", success: false };
     }
-
-   
-    // Here you would typically set up session/JWT
-    // For now, just redirect to dashboard
-    
-    
-  } catch (error) {
-    console.error('Login error:', error);
-    return { message: "Login failed. Please try again.", success: false };
-  }
-  redirect('/home');
 };

@@ -116,8 +116,8 @@ export default function Registration() {
             )}
           </div>
           
-          <Link href="/auth/policy" className="grid text-center text-indigo-600 justify-items-center hover:text-indigo-800">
-            Already have an account? Click to Login
+          <Link href="/auth/policy" className="grid px-4 py-2 text-center text-white bg-indigo-500 rounded-md hover:bg-indigo-600 justify-items-center hover:text-indigo-800">
+            Login
           </Link>
         </form>
       </div>
