@@ -70,7 +70,7 @@ export default function Login() {
         <form className="space-y-4" action={formAction} onSubmit={handleSubmit}>
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-600">
-              Email Address
+              Buasri ID
             </label>
             <input
               type="email"
@@ -81,24 +81,6 @@ export default function Login() {
               name="email"
               required
             />
-          </div>
-          
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-600">
-              Password
-            </label>
-             <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Enter your password"
-              name="password"
-              required
-            />
-            <Link href="/forget-password" className="grid ml-4 text-left text-red-600 justify-items-start hover:text-red-200">
-            Forget your password?
-          </Link>
           </div>
           
           <div>

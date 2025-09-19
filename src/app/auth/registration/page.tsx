@@ -61,7 +61,7 @@ export default function Registration() {
         <form className="space-y-4" action={formAction}>
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-600">
-              Full Name
+               Buasri ID
             </label>
             <input
               type="text"
@@ -72,7 +72,7 @@ export default function Registration() {
             />
           </div>
           
-          <div>
+   {/*        <div>
             <label className="block mb-2 text-sm font-medium text-gray-600">
               Email Address
             </label>
@@ -82,8 +82,8 @@ export default function Registration() {
               placeholder="Enter your email"
               name="email"
               required
-            />
-          </div>
+            /> 
+          </div> */}
           
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-600">
@@ -96,6 +96,9 @@ export default function Registration() {
               name="password"
               required
             />
+            <Link href="/forget-password" className="grid ml-4 text-left text-red-600 justify-items-start hover:text-red-200">
+            Forget your password?
+          </Link>
           </div>
           
           <div>
